@@ -2,6 +2,7 @@
 // https://m4milaad.github.io/ 
 
 import PageLayout from "./PageLayout";
+import RegistrationForm from "./RegistrationForm";
 
 function Registration() {
   return (
@@ -20,7 +21,7 @@ function Registration() {
       </div>
 
       {/* Registration Table */}
-      <div className="bg-white rounded shadow-sm p-6">
+      <div className="bg-white rounded shadow-sm p-6 mb-8">
         <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center border-b-2 border-gray-200 pb-4">
           Registration fee for the conference (18-19 June 2026)
         </h3>
@@ -84,6 +85,8 @@ function Registration() {
           </div>
         </div>
       </div>
+
+      <RegistrationForm />
     </PageLayout>
   );
 }

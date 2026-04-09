@@ -5,6 +5,7 @@ import committeeRoutes from "./routes/committeeRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import registrationRoutes from "./routes/registrationRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -17,6 +18,7 @@ app.use("/api", committeeRoutes);
 app.use("/api", uploadRoutes);
 app.use("/api", authRoutes);
 app.use("/api", contactRoutes);
+app.use("/api", registrationRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is running 🚀");

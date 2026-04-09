@@ -1,0 +1,606 @@
+import { useState, useEffect } from "react";
+
+function RegistrationForm() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    affiliation: "",
+    designation: "UG Student",
+    country: "",
+    email: "",
+    contactNumber: "",
+    participantType: "Author",
+    paperId: "",
+    paperTitle: "",
+    numAuthors: "",
+    subCategory: "UG / PG / PhD Student",
+    region: "South Asian",
+    attendWorkshop: "No",
+    modeOfPayment: "",
+    transactionId: "",
+    dateOfPayment: "",
+    declaration: false,
+  });
+
+  const [fee, setFee] = useState({ usd: 0, inr: 0 });
+
+  const DESIGNATIONS = [
+    "UG Student",
+    "PG Student",
+    "PhD Scholar",
+    "Faculty / Researcher",
+    "Industry / Professional",
+  ];
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  useEffect(() => {
+    let usd = 0;
+    let inr = 0;
+
+    const isAuthor = formData.participantType === "Author";
+    const isStudent = formData.subCategory === "UG / PG / PhD Student";
+    const isSouthAsian = formData.region === "South Asian";
+    const wantsWorkshop = formData.attendWorkshop === "Yes";
+
+    if (isAuthor) {
+      if (isStudent) {
+        usd = isSouthAsian ? 80 : 150;
+        inr = isSouthAsian ? 7200 : 0;
+      } else {
+        usd = isSouthAsian ? 120 : 200;
+        inr = isSouthAsian ? 10800 : 0;
+      }
+    } else {
+      if (isStudent) {
+        usd = isSouthAsian ? 50 : 75;
+        inr = isSouthAsian ? 4500 : 0;
+      } else {
+        usd = isSouthAsian ? 60 : 100;
+        inr = isSouthAsian ? 5400 : 0;
+      }
+    }
+
+    if (wantsWorkshop) {
+      usd += 20;
+      if (isSouthAsian) {
+        inr += 1800;
+      }
+    }
+
+    setFee({ usd, inr });
+  }, [
+    formData.participantType,
+    formData.subCategory,
+    formData.region,
+    formData.attendWorkshop,
+  ]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Construct FormData to handle text fields and the paymentProof file
+    const submitData = new FormData();
+    Object.keys(formData).forEach((key) => {
+      submitData.append(key, formData[key]);
+    });
+    submitData.append("totalFeeUsd", fee.usd);
+    submitData.append("totalFeeInr", fee.inr);
+
+    // Payment proof file from the file input
+    const fileInput = document.querySelector('input[name="paymentProof"]');
+    if (fileInput && fileInput.files[0]) {
+      submitData.append("paymentProof", fileInput.files[0]);
+    }
+
+    try {
+      // Connect to the backend (assuming default port 5000)
+      const response = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        body: submitData,
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Form Submitted Successfully:", result);
+        alert("Registration details have been submitted and saved!");
+        // Optional: you could reset the form here
+      } else {
+        console.error("Submission failed:", result);
+        alert("Submission failed: " + (result.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Error securely connecting to backend server.");
+    }
+  };
+
+  const validateStep1 = () => {
+    if (!formData.fullName || !formData.affiliation || !formData.country || !formData.email || !formData.contactNumber) {
+      alert("Please fill all required fields in Participant Information.");
+      return false;
+    }
+    if (formData.participantType === "Author") {
+      if (!formData.paperId || !formData.paperTitle || !formData.numAuthors) {
+        alert("Please fill all required Author Details.");
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const validateStep2 = () => {
+    // Dropdowns and radios always have a value default
+    return true; 
+  };
+
+  const nextStep = () => {
+    if (currentStep === 1 && !validateStep1()) return;
+    if (currentStep === 2 && !validateStep2()) return;
+    setCurrentStep((prev) => prev + 1);
+  };
+
+  const prevStep = () => setCurrentStep((prev) => prev - 1);
+
+  return (
+    <div className="bg-white rounded shadow-sm p-8 mt-8 border border-gray-100">
+      <h3 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+        2AI Conference Registration
+      </h3>
+      <p className="text-sm text-gray-600 mb-8 text-center">
+        (Based on Approved Fee Structure)
+      </p>
+
+      {/* Stepper Progress */}
+      <div className="flex items-center justify-center mb-8">
+        {[1, 2, 3].map((step, index) => (
+          <div key={step} className="flex items-center">
+            <div
+              className={`w-10 h-10 flex items-center justify-center font-bold rounded-full border-2 
+                ${
+                  currentStep === step
+                    ? "bg-[#2c5aa0] text-white border-[#2c5aa0]"
+                    : currentStep > step
+                    ? "bg-green-500 text-white border-green-500"
+                    : "bg-gray-100 text-gray-400 border-gray-200"
+                } transition-all duration-300 shadow-sm`}
+            >
+              {currentStep > step ? "✓" : step}
+            </div>
+            {index < 2 && (
+              <div
+                className={`w-12 md:w-20 h-1 
+                  ${currentStep > step ? "bg-green-500" : "bg-gray-200"}
+                  transition-colors duration-300`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8 min-h-[400px]">
+        {/* ================= STEP 1: Participant & Category ================= */}
+        {currentStep === 1 && (
+          <div className="animate-fadeInDown">
+            {/* A. Participant Information */}
+            <section className="mb-8">
+              <h4 className="text-lg font-bold text-[#2c5aa0] border-b border-gray-200 pb-2 mb-6">
+                Step 1: Participant Information
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    placeholder="Milad Ajaz Bhat"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Affiliation / Organization <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="affiliation"
+                    value={formData.affiliation}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    placeholder="University/Company"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Designation
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {DESIGNATIONS.map((desig) => (
+                      <label key={desig} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-gray-50 hover:bg-blue-50 p-3 rounded border border-gray-200 transition-colors">
+                        <input
+                          type="radio"
+                          name="designation"
+                          value={desig}
+                          checked={formData.designation === desig}
+                          onChange={handleChange}
+                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span className="font-medium">{desig}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Country <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    placeholder="Your Country"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Email ID <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    placeholder="you@domain.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Contact Number (with country code) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    placeholder="+1 234 567 890"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* B. Registration Category */}
+            <section className="mb-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                Registration Category
+              </h4>
+              <div className="flex flex-wrap gap-4">
+                {["Author", "Non-Author"].map((type) => (
+                  <label key={type} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 border border-gray-200 rounded shadow-sm hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="participantType"
+                      value={type}
+                      checked={formData.participantType === type}
+                      onChange={handleChange}
+                      className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    />
+                    <span className="font-semibold">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            {/* C. Author Details */}
+            {formData.participantType === "Author" && (
+              <section className="bg-blue-50 p-5 rounded-lg border border-blue-100 animate-slideDown">
+                <h4 className="text-md font-bold text-[#2c5aa0] mb-4 flex items-center">
+                  C. Author Details
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Paper ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="paperId"
+                      value={formData.paperId}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Paper Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="paperTitle"
+                      value={formData.paperTitle}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Number of Authors <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="numAuthors"
+                      min="1"
+                      value={formData.numAuthors}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+
+        {/* ================= STEP 2: Fee Selection & Workshop ================= */}
+        {currentStep === 2 && (
+          <div className="animate-fadeInDown">
+            <h4 className="text-lg font-bold text-[#2c5aa0] border-b border-gray-200 pb-2 mb-6">
+              Step 2: Fee Selection & Add-ons
+            </h4>
+
+            {/* D. Fee Category Selection */}
+            <section className="mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white p-5 rounded border border-gray-200 shadow-sm">
+                  <label className="block text-sm font-bold text-gray-800 mb-3 border-b pb-2">
+                    Sub-Category
+                  </label>
+                  <div className="space-y-3">
+                    {["UG / PG / PhD Student", "Others"].map((subCat) => (
+                      <label key={subCat} className="flex items-center space-x-3 text-sm text-gray-700 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="subCategory"
+                          value={subCat}
+                          checked={formData.subCategory === subCat}
+                          onChange={handleChange}
+                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span className="font-medium">{subCat === "Others" ? "Others (Faculty / Researcher / Industry)" : subCat}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-white p-5 rounded border border-gray-200 shadow-sm">
+                  <label className="block text-sm font-bold text-gray-800 mb-3 border-b pb-2">
+                    Region
+                  </label>
+                  <div className="space-y-3">
+                    {["South Asian", "Other Countries"].map((reg) => (
+                      <label key={reg} className="flex items-center space-x-3 text-sm text-gray-700 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="region"
+                          value={reg}
+                          checked={formData.region === reg}
+                          onChange={handleChange}
+                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span className="font-medium">{reg}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* F. Pre-Conference Workshop */}
+            <section className="mb-8 bg-blue-50 p-5 rounded-lg border border-blue-100">
+              <h4 className="text-md font-bold text-blue-900 mb-3">
+                Pre-Conference Workshop (Optional)
+              </h4>
+              <p className="text-sm text-gray-700 mb-4">
+                Do you want to attend the Pre-Conference Workshop on 17th June 2026?
+              </p>
+              <div className="flex gap-6">
+                <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 rounded border border-gray-200 shadow-sm">
+                  <input
+                    type="radio"
+                    name="attendWorkshop"
+                    value="Yes"
+                    checked={formData.attendWorkshop === "Yes"}
+                    onChange={handleChange}
+                    className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                  <span className="font-semibold text-blue-700">Yes (+ $20 / ₹1,800)</span>
+                </label>
+                <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 rounded border border-gray-200 shadow-sm">
+                  <input
+                    type="radio"
+                    name="attendWorkshop"
+                    value="No"
+                    checked={formData.attendWorkshop === "No"}
+                    onChange={handleChange}
+                    className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                  <span className="font-semibold">No, Thanks</span>
+                </label>
+              </div>
+            </section>
+
+            {/* E. Auto-Calculated Fee */}
+            <section className="bg-orange-50 border-2 border-orange-300 p-6 rounded-lg text-center shadow-sm">
+              <h4 className="text-sm font-bold text-gray-600 uppercase tracking-widest mb-2 flex items-center justify-center space-x-2">
+                <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Total Payable Amount</span>
+              </h4>
+              <div className="text-4xl font-extrabold text-[#2c5aa0] animate-zoomFadeIn">
+                $ {fee.usd} {fee.inr > 0 && <span className="text-2xl text-gray-500 font-bold ml-2">/ ₹ {fee.inr}</span>}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ================= STEP 3: Payment & Submission ================= */}
+        {currentStep === 3 && (
+          <div className="animate-fadeInDown">
+            <h4 className="text-lg font-bold text-[#2c5aa0] border-b border-gray-200 pb-2 mb-6">
+              Step 3: Payment & Declaration
+            </h4>
+            
+            {/* Payment Value Display */}
+            <div className="bg-blue-600 text-white rounded p-4 mb-8 text-center shadow">
+              <p className="text-sm opacity-90 mb-1">Amount to Transfer</p>
+              <p className="text-2xl font-bold">$ {fee.usd} {fee.inr > 0 ? `/ ₹ ${fee.inr}` : ''}</p>
+            </div>
+
+            {/* G. Payment Details */}
+            <section className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Mode of Payment <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    {["Bank Transfer", "Online Payment", "UPI"].map((mode) => (
+                      <label key={mode} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white border border-gray-300 p-3 rounded hover:border-blue-500 transition">
+                        <input
+                          type="radio"
+                          name="modeOfPayment"
+                          value={mode}
+                          required
+                          checked={formData.modeOfPayment === mode}
+                          onChange={handleChange}
+                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                        />
+                        <span className="font-medium">{mode}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Transaction ID / Reference Num <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="transactionId"
+                    required
+                    value={formData.transactionId}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="TXN-123456789"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Date of Payment <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={formData.dateOfPayment ? "date" : "text"}
+                      name="dateOfPayment"
+                      placeholder="Select your date"
+                      onFocus={(e) => (e.target.type = "date")}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = "text";
+                      }}
+                      required
+                      value={formData.dateOfPayment}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 outline-none
+                        [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:z-10
+                      "
+                    />
+                    {/* Fake text placeholder that shows over the input when it's type date, to act as the "select" prompt if we wanted to replace the icon itself */}
+                    {formData.dateOfPayment && (
+                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600 font-semibold pointer-events-none bg-white px-1">
+                          Select your date
+                       </span>
+                    )}
+                  </div>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Upload Payment Proof <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="file"
+                    name="paymentProof"
+                    required
+                    accept="image/*,application/pdf"
+                    className="w-full border border-gray-300 rounded p-3 text-sm text-gray-700 bg-white focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* H. Declaration */}
+            <section className="bg-white p-5 rounded border border-gray-200">
+              <label className="flex items-start space-x-3 text-sm text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="declaration"
+                  required
+                  checked={formData.declaration}
+                  onChange={handleChange}
+                  className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="font-semibold leading-relaxed">
+                  I hereby confirm that the above information is correct and I agree to the conference rules and policies. I understand that my registration is subject to verification of the payment.
+                </span>
+              </label>
+            </section>
+          </div>
+        )}
+
+        {/* ================= NAVIGATION BUTTONS ================= */}
+        <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+          {currentStep > 1 ? (
+            <button
+              type="button"
+              onClick={prevStep}
+              className="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition"
+            >
+              ← Back
+            </button>
+          ) : (
+            <div></div> // Empty div to push 'Next' to the right
+          )}
+
+          {currentStep < 3 ? (
+            <button
+              type="button"
+              onClick={nextStep}
+              className="bg-[#2c5aa0] hover:bg-blue-800 text-white font-bold py-2 px-8 rounded-lg shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              Next Step →
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-400"
+            >
+              Submit Registration
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}
+
+export default RegistrationForm;
