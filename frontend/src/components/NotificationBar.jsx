@@ -5,7 +5,7 @@ import { FileDown, MapPin, BookOpen } from "lucide-react";
 
 const NotificationBar = () => {
   return (
-    <div className="bg-gradient-to-r from-red-600 to-orange-500 text-white overflow-hidden relative rounded">
+    <div className="bg-gradient-to-r from-[#0B1021] via-[#1A365D] to-[#0B1021] border-b border-[#2c5aa0]/30 text-white overflow-hidden relative shadow-xl">
       <div className="animate-marquee whitespace-nowrap flex items-center w-max hover:[animation-play-state:paused] py-3">
         
         {/* 1. FREE TRIP OFFER */}

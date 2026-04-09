@@ -2,6 +2,7 @@
 // https://m4milaad.github.io/ 
 
 import { FaInstagram, FaLinkedin, FaFacebook } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -15,9 +16,9 @@ function Footer() {
             <h3 className="text-lg font-bold text-gray-800 mb-4">Contact Us</h3>
             <div className="space-y-3 text-sm text-gray-700">
               <p>
-                <a href="/contact" className="text-blue-600 hover:underline">
-                  CVPR Help Desk
-                </a>
+                <Link to="/contact" className="text-blue-600 hover:underline">
+                  2AI Help Desk
+                </Link>
               </p>
               <p className="leading-relaxed">
                 Please contact us with questions about the following topics:
@@ -60,21 +61,21 @@ function Footer() {
                 </div>
               </div>
 
-              {/* Computer Vision Foundation */}
+              {/* Computer Vision Foundation -> 2AI */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 mt-1">
                   <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center text-white text-xs font-bold">
-                    CVF
+                    2AI
                   </div>
                 </div>
                 <div>
                   <a
-                    href="https://www.thecvf.com/"
+                    href="#"
                     target="_blank"
                     rel="noreferrer"
                     className="text-blue-600 hover:underline text-sm font-medium"
                   >
-                    The Computer Vision Foundation
+                    2AI Committee & Foundations
                   </a>
                 </div>
               </div>
@@ -82,14 +83,14 @@ function Footer() {
               {/* Additional Links */}
               <div className="pt-3 space-y-2">
                 <div>
-                  <a href="/about" className="text-blue-600 hover:underline text-sm">
-                    CVPR Proceedings
-                  </a>
+                  <Link to="/about" className="text-blue-600 hover:underline text-sm">
+                    2AI Proceedings
+                  </Link>
                 </div>
                 <div>
-                  <a href="/contact" className="text-blue-600 hover:underline text-sm">
+                  <Link to="/contact" className="text-blue-600 hover:underline text-sm">
                     Code of Conduct
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -164,16 +165,14 @@ function Footer() {
         </div>
       </div>
 
-      {/* CVF Knowledge Link */}
+      {/* CVF Knowledge Link -> 2AI Knowledge */}
       <div className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-3 text-center">
           <a 
-            href="https://applied-ai-conference.org/" 
-            target="_blank" 
-            rel="noreferrer"
+            href="#" 
             className="text-blue-600 hover:underline text-sm"
           >
-            CVF Knowledge
+            2AI Knowledge base
           </a>
         </div>
       </div>
