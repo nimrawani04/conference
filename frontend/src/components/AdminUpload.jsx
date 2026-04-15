@@ -1,6 +1,7 @@
 // {/* this code can be used when backend , mysql and excel sheet is connected */ }
 
 // import React, { useState } from "react";
+// import { apiUrl } from "../config/api";
 
 // function AdminUpload() {
 //     const [file, setFile] = useState(null);
@@ -17,7 +18,7 @@
 //         formData.append("file", file);
 
 //         try {
-//             const res = await fetch("http://localhost:5000/api/upload-committee", {
+//             const res = await fetch(apiUrl("/api/upload-committee"), {
 //                 method: "POST",
 //                 body: formData,
 //             });

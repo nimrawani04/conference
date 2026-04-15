@@ -2,6 +2,7 @@
 
 // import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
+// import { apiUrl } from "../config/api";
 
 // function Login({ setIsAdmin }) {
 //     const [username, setUsername] = useState("");
@@ -11,7 +12,7 @@
 
 //     const handleSubmit = async (e) => {
 //         e.preventDefault();
-//         const res = await fetch("http://localhost:5000/api/login", {
+//         const res = await fetch(apiUrl("/api/login"), {
 //             method: "POST",
 //             headers: { "Content-Type": "application/json" },
 //             body: JSON.stringify({ username, password }),
