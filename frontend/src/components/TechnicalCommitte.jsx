@@ -122,12 +122,13 @@
 
 // // import React, { useEffect, useState } from "react";
 // // import Navbar from "./Navbar";
+// // import { apiUrl } from "../config/api";
 
 // // function TechnicalCommittee() {
 // //   const [committee, setCommittee] = useState({});
 
 // //   useEffect(() => {
-// //     fetch("http://localhost:5000/api/technical-committee")
+// //     fetch(apiUrl("/api/technical-committee"))
 // //       .then((res) => res.json())
 // //       .then((data) => {
 // //         // Group members by sub_committe (section)

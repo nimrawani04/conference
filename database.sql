@@ -19,6 +19,7 @@ CREATE TABLE committee (
 
 CREATE TABLE registrations (
   id INT AUTO_INCREMENT PRIMARY KEY,
+  registration_id VARCHAR(50) UNIQUE NOT NULL,
   full_name VARCHAR(255) NOT NULL,
   affiliation VARCHAR(255) NOT NULL,
   designation VARCHAR(100),
@@ -39,6 +40,8 @@ CREATE TABLE registrations (
   date_of_payment DATE,
   payment_proof_path VARCHAR(255),
   declaration BOOLEAN,
+  qr_code LONGTEXT,
+  payment_verified BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -47,3 +50,7 @@ VALUES ('admin', 'admin@1234');
 
 SELECT * FROM committee;
 ALTER TABLE committee CHANGE sub_committee sub_committe VARCHAR(255);
+
+ALTER TABLE registrations 
+ADD COLUMN registration_id VARCHAR(50) UNIQUE AFTER id,
+ADD COLUMN qr_code LONGTEXT AFTER declaration;

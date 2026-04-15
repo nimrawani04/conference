@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { startGatewayCheckout } from "./PaymentGateway";
 
 function RegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [paymentBusy, setPaymentBusy] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     affiliation: "",
@@ -84,40 +86,31 @@ function RegistrationForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Construct FormData to handle text fields and the paymentProof file
-    const submitData = new FormData();
-    Object.keys(formData).forEach((key) => {
-      submitData.append(key, formData[key]);
-    });
-    submitData.append("totalFeeUsd", fee.usd);
-    submitData.append("totalFeeInr", fee.inr);
-
-    // Payment proof file from the file input
-    const fileInput = document.querySelector('input[name="paymentProof"]');
-    if (fileInput && fileInput.files[0]) {
-      submitData.append("paymentProof", fileInput.files[0]);
+    if (!formData.declaration) {
+      alert("Please accept the declaration to continue to payment.");
+      return;
     }
 
-    try {
-      // Connect to the backend (assuming default port 5000)
-      const response = await fetch("http://localhost:5000/api/register", {
-        method: "POST",
-        body: submitData,
-      });
+    const registrationPayload = {
+      ...formData,
+      totalFeeUsd: fee.usd,
+      totalFeeInr: fee.inr,
+    };
 
-      const result = await response.json();
-      if (response.ok) {
-        console.log("Form Submitted Successfully:", result);
-        alert("Registration details have been submitted and saved!");
-        // Optional: you could reset the form here
-      } else {
-        console.error("Submission failed:", result);
-        alert("Submission failed: " + (result.error || "Unknown error"));
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Error securely connecting to backend server.");
+    sessionStorage.setItem("pendingRegistration", JSON.stringify(registrationPayload));
+
+    setPaymentBusy(true);
+    try {
+      await startGatewayCheckout({
+        amount: fee.inr > 0 ? fee.inr : fee.usd,
+        currency: fee.inr > 0 ? "INR" : "USD",
+        registrationData: registrationPayload,
+      });
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "Could not start payment. Please try again.");
+      sessionStorage.removeItem("pendingRegistration");
+      setPaymentBusy(false);
     }
   };
 
@@ -149,13 +142,14 @@ function RegistrationForm() {
   const prevStep = () => setCurrentStep((prev) => prev - 1);
 
   return (
-    <div className="bg-white rounded shadow-sm p-8 mt-8 border border-gray-100">
-      <h3 className="text-2xl font-bold text-gray-800 mb-2 text-center">
-        2AI Conference Registration
-      </h3>
-      <p className="text-sm text-gray-600 mb-8 text-center">
-        (Based on Approved Fee Structure)
-      </p>
+    <>
+      <div className="bg-white rounded shadow-sm p-8 mt-8 border border-gray-100">
+        <h3 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+          2AI Conference Registration
+        </h3>
+        <p className="text-sm text-gray-600 mb-8 text-center">
+          (Based on Approved Fee Structure)
+        </p>
 
       {/* Stepper Progress */}
       <div className="flex items-center justify-center mb-8">
@@ -454,101 +448,33 @@ function RegistrationForm() {
           </div>
         )}
 
-        {/* ================= STEP 3: Payment & Submission ================= */}
+        {/* ================= STEP 3: Payment & Declaration ================= */}
         {currentStep === 3 && (
           <div className="animate-fadeInDown">
             <h4 className="text-lg font-bold text-[#2c5aa0] border-b border-gray-200 pb-2 mb-6">
               Step 3: Payment & Declaration
             </h4>
-            
-            {/* Payment Value Display */}
-            <div className="bg-blue-600 text-white rounded p-4 mb-8 text-center shadow">
-              <p className="text-sm opacity-90 mb-1">Amount to Transfer</p>
-              <p className="text-2xl font-bold">$ {fee.usd} {fee.inr > 0 ? `/ ₹ ${fee.inr}` : ''}</p>
+
+            <div className="bg-blue-600 text-white rounded p-4 mb-6 text-center shadow">
+              <p className="text-sm opacity-90 mb-1">Amount due</p>
+              <p className="text-2xl font-bold">
+                $ {fee.usd}
+                {fee.inr > 0 ? ` / ₹ ${fee.inr}` : ""}
+              </p>
             </div>
 
-            {/* G. Payment Details */}
             <section className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Mode of Payment <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex flex-wrap gap-4">
-                    {["Bank Transfer", "Online Payment", "UPI"].map((mode) => (
-                      <label key={mode} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white border border-gray-300 p-3 rounded hover:border-blue-500 transition">
-                        <input
-                          type="radio"
-                          name="modeOfPayment"
-                          value={mode}
-                          required
-                          checked={formData.modeOfPayment === mode}
-                          onChange={handleChange}
-                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
-                        />
-                        <span className="font-medium">{mode}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Transaction ID / Reference Num <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="transactionId"
-                    required
-                    value={formData.transactionId}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="TXN-123456789"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Date of Payment <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={formData.dateOfPayment ? "date" : "text"}
-                      name="dateOfPayment"
-                      placeholder="Select your date"
-                      onFocus={(e) => (e.target.type = "date")}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = "text";
-                      }}
-                      required
-                      value={formData.dateOfPayment}
-                      onChange={handleChange}
-                      className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 outline-none
-                        [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:z-10
-                      "
-                    />
-                    {/* Fake text placeholder that shows over the input when it's type date, to act as the "select" prompt if we wanted to replace the icon itself */}
-                    {formData.dateOfPayment && (
-                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-blue-600 font-semibold pointer-events-none bg-white px-1">
-                          Select your date
-                       </span>
-                    )}
-                  </div>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Upload Payment Proof <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="file"
-                    name="paymentProof"
-                    required
-                    accept="image/*,application/pdf"
-                    className="w-full border border-gray-300 rounded p-3 text-sm text-gray-700 bg-white focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                </div>
-              </div>
+              <p className="text-sm font-semibold text-gray-800 mb-2">Secure online payment</p>
+              <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                Use the button below to open the payment portal, complete your transaction, and return here to finish
+                registration automatically. You will leave this site briefly and be redirected back after payment.
+              </p>
+              <ul className="text-sm text-gray-600 list-disc pl-5 space-y-1">
+                <li>Card, UPI, and other options available on the gateway</li>
+                <li>Do not close the browser until you return to the confirmation page</li>
+              </ul>
             </section>
 
-            {/* H. Declaration */}
             <section className="bg-white p-5 rounded border border-gray-200">
               <label className="flex items-start space-x-3 text-sm text-gray-700 cursor-pointer">
                 <input
@@ -560,7 +486,8 @@ function RegistrationForm() {
                   className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <span className="font-semibold leading-relaxed">
-                  I hereby confirm that the above information is correct and I agree to the conference rules and policies. I understand that my registration is subject to verification of the payment.
+                  I hereby confirm that the above information is correct and I agree to the conference rules and policies.
+                  I authorize payment through the secure gateway for the amount shown.
                 </span>
               </label>
             </section>
@@ -592,14 +519,16 @@ function RegistrationForm() {
           ) : (
             <button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-400"
+              disabled={paymentBusy}
+              className="bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3 px-10 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-green-400"
             >
-              Submit Registration
+              {paymentBusy ? "Opening payment portal…" : "Proceed to payment"}
             </button>
           )}
         </div>
       </form>
     </div>
+    </>
   );
 }
 

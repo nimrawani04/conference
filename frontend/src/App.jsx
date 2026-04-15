@@ -13,6 +13,10 @@ import SteeringCommitte from "./components/SteeringCommitte";
 import OrganizingCommitte from "./components/OrganizingCommitte";
 import SpecialSessions from "./components/SpecialSessions"
 import Sponsors from "./components/Sponsors";
+import TicketTest from "./components/TicketTest";
+import VerifyTicket from "./components/VerifyTicket";
+import PaymentCallback from "./components/PaymentCallback";
+import RegistrationSuccess from "./components/RegistrationSuccess";
 
 function App() {
   return (
@@ -31,6 +35,10 @@ function App() {
         <Route path="/sessions/workshops" element={<Workshops />} />
         <Route path="/sessions/specialSessions" element={<SpecialSessions />} />
         <Route path="/KeyNotes" element={<KeyNotes />} />
+        <Route path="/ticket-test" element={<TicketTest />} />
+        <Route path="/verify-ticket" element={<VerifyTicket />} />
+        <Route path="/payment-callback" element={<PaymentCallback />} />
+        <Route path="/registration-success" element={<RegistrationSuccess />} />
       </Routes>
       <Footer />
     </Router>
