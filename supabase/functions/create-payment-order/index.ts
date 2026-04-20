@@ -1,8 +1,50 @@
 import { corsJson, handleOptions } from "../_shared/cors.ts";
 import { iciciAes128Encrypt } from "../_shared/iciciEazypayCrypto.ts";
 
+const DEFAULT_ICICI_EAZYPAY_BASE = "https://eazypay.icicibank.com/EazyPG";
+
 function trimEndSlashes(s: string): string {
   return s.replace(/\/+$/, "");
+}
+
+/** ICICI checkout must load on *.icicibank.com — never your own domain (common secret mix-up). */
+function resolveIciciEazypayBaseUrl(rawFromEnv: string, frontendUrl: string): string {
+  const raw = rawFromEnv.trim();
+  if (!raw) return DEFAULT_ICICI_EAZYPAY_BASE;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    console.warn(
+      "[create-payment-order] ICICI_EAZYPAY_BASE_URL is not a valid URL; using default ICICI gateway.",
+    );
+    return DEFAULT_ICICI_EAZYPAY_BASE;
+  }
+
+  const host = parsed.hostname.toLowerCase();
+  const onIcici = host === "icicibank.com" || host.endsWith(".icicibank.com");
+  if (!onIcici) {
+    console.warn(
+      `[create-payment-order] ICICI_EAZYPAY_BASE_URL must be an ICICI host (*.icicibank.com), not "${host}"; using default gateway.`,
+    );
+    return DEFAULT_ICICI_EAZYPAY_BASE;
+  }
+
+  try {
+    const frontHost = new URL(frontendUrl).hostname.toLowerCase();
+    if (host === frontHost) {
+      console.warn(
+        "[create-payment-order] ICICI_EAZYPAY_BASE_URL cannot match FRONTEND_URL; using default gateway.",
+      );
+      return DEFAULT_ICICI_EAZYPAY_BASE;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  const baseNoTrailingSlash = `${parsed.origin}${parsed.pathname}`.replace(/\/+$/, "");
+  return baseNoTrailingSlash || DEFAULT_ICICI_EAZYPAY_BASE;
 }
 
 function normalizeAmount(amount: number, currency: string): string {
