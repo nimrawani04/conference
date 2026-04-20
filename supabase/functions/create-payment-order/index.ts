@@ -65,10 +65,20 @@ Deno.serve(async (req) => {
       return corsJson(
         {
           error:
-            `Payment gateway not configured — Edge runtime has no value for: ${missing.join(", ")}. ` +
+            `Payment gateway not configured - Edge runtime has no value for: ${missing.join(", ")}. ` +
             `Add them under Project Settings → Edge Functions → Secrets for this same project as VITE_SUPABASE_URL, then redeploy create-payment-order.`,
         },
         500,
+      );
+    }
+
+    if (!(aesKey.length >= 16)) {
+      return corsJson(
+        {
+          error:
+            "ICICI_EAZYPAY_AES_KEY must be at least 16 characters (AES-128). Check the key from the bank portal.",
+        },
+        400,
       );
     }
 
@@ -116,7 +126,7 @@ Deno.serve(async (req) => {
       gateway: "icici-eazypay",
       redirectMode: "location",
       paymentUrl,
-      paymentData: null as Record<string, string> | null,
+      paymentData: null,
     });
   } catch (e) {
     console.error(e);

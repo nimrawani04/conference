@@ -3,9 +3,9 @@
  */
 import CryptoJS from "npm:crypto-js@4.2.0";
 
-function aesKeyWordArray(keyStr: string): CryptoJS.lib.WordArray {
+function aesKeyWordArray(keyStr: string) {
   const normalized = keyStr.trim();
-  if (normalized.length < 16) {
+  if (!(normalized.length >= 16)) {
     throw new Error("ICICI AES key must be at least 16 bytes");
   }
   const slice = normalized.slice(0, 16);
@@ -24,7 +24,7 @@ export function iciciAes128Encrypt(plaintext: string, keyStr: string): string {
 export function iciciAes128Decrypt(cipherBase64: string, keyStr: string): string {
   const key = aesKeyWordArray(keyStr);
   const clean = cipherBase64.trim().replace(/\s/g, "");
-  const params = { ciphertext: CryptoJS.enc.Base64.parse(clean) } as CryptoJS.lib.CipherParams;
+  const params = { ciphertext: CryptoJS.enc.Base64.parse(clean) } as any;
   const decrypted = CryptoJS.AES.decrypt(params, key, {
     mode: CryptoJS.mode.ECB,
     padding: CryptoJS.pad.Pkcs7,

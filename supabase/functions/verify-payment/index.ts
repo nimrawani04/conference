@@ -2,7 +2,7 @@ import { corsJson, handleOptions } from "../_shared/cors.ts";
 import { iciciAes128Decrypt } from "../_shared/iciciEazypayCrypto.ts";
 
 function findParam(
-  query: Record<string, string>,
+  query: { [key: string]: string },
   candidates: string[],
 ): string | undefined {
   const lowered = Object.fromEntries(
@@ -24,7 +24,7 @@ function iciciConfigured(): boolean {
 }
 
 function tryMatchOrderFromIciciResponse(
-  query: Record<string, string>,
+  query: { [key: string]: string },
   aesKey: string,
   expectedOrderId: string,
 ): boolean {
@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const query = (body.query ?? body.params ?? {}) as Record<string, string>;
+    const query = (body.query ?? body.params ?? {}) as { [key: string]: string };
     const expectedOrderId = typeof body.expectedOrderId === "string" ? body.expectedOrderId.trim() : "";
 
     if (!iciciConfigured()) {

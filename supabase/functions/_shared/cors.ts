@@ -1,10 +1,10 @@
-export const corsHeaders: Record<string, string> = {
+export const corsHeaders: { [key: string]: string } = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
 
-export function corsJson(body: unknown, status = 200) {
+export function corsJson(body: object | string | number | boolean | null, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },

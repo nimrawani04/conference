@@ -1,15 +1,23 @@
 import { supabase } from "./supabase";
 import { FunctionsHttpError } from "@supabase/supabase-js";
 
+function isFunctionsHttpError(error) {
+  return (
+    error instanceof FunctionsHttpError ||
+    (Boolean(error) && error.name === "FunctionsHttpError" && typeof error.context?.text === "function")
+  );
+}
+
 async function messageFromFunctionsError(error) {
-  if (error instanceof FunctionsHttpError && error.context?.json) {
+  if (isFunctionsHttpError(error)) {
     try {
-      const parsed = await error.context.clone().json();
+      const text = await error.context.text();
+      const parsed = JSON.parse(text);
       if (parsed && typeof parsed === "object" && parsed.error != null) {
         return String(parsed.error);
       }
     } catch {
-      /* body not JSON */
+      /* body not JSON or empty */
     }
   }
   return error.message || "Request failed";
