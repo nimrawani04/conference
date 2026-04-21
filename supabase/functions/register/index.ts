@@ -1,11 +1,24 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import QRCode from "https://esm.sh/qrcode@1.5.4";
 import { corsJson, handleOptions } from "./_shared/cors.ts";
+import { verifyPaymentCompletionProof } from "../_shared/paymentCompletionProof.ts";
 
 function parseNumOrNull(val: unknown): number | null {
   if (val === "" || val === undefined || val === null) return null;
   const n = Number(val);
   return Number.isFinite(n) ? n : null;
+}
+
+function isIciciEazypayMode(mode: unknown): boolean {
+  return String(mode ?? "").trim() === "ICICI Eazypay";
+}
+
+function isTestMode(mode: unknown): boolean {
+  return String(mode ?? "").trim() === "Test";
+}
+
+function truthyPaymentVerified(v: unknown): boolean {
+  return v === "true" || v === true || v === 1;
 }
 
 Deno.serve(async (req) => {
@@ -43,10 +56,40 @@ Deno.serve(async (req) => {
       dateOfPayment,
       declaration,
       paymentVerified,
+      paymentOrderRef,
+      paymentCompletionProof,
     } = body;
 
     if (!fullName || !affiliation || !email || !transactionId) {
       return corsJson({ error: "Missing required fields" }, 400);
+    }
+
+    const wantsPaid = truthyPaymentVerified(paymentVerified);
+    const iciciOnline = wantsPaid && isIciciEazypayMode(modeOfPayment);
+
+    if (iciciOnline) {
+      const orderRef = typeof paymentOrderRef === "string" ? paymentOrderRef.trim() : "";
+      const proof = typeof paymentCompletionProof === "string" ? paymentCompletionProof.trim() : "";
+      if (!orderRef || !proof) {
+        return corsJson(
+          {
+            error:
+              "Online payment registration requires a valid payment confirmation from the payment return step. Please complete checkout and return from the bank page.",
+          },
+          400,
+        );
+      }
+      const secret = (Deno.env.get("PAYMENT_COMPLETION_SECRET") ?? "").trim();
+      if (secret.length < 16) {
+        return corsJson({ error: "Server configuration error" }, 500);
+      }
+      const ok = await verifyPaymentCompletionProof(secret, proof, orderRef, email);
+      if (!ok) {
+        return corsJson(
+          { error: "Invalid or expired payment confirmation. Start again from registration if payment succeeded." },
+          400,
+        );
+      }
     }
 
     const registrationId =
@@ -81,7 +124,8 @@ Deno.serve(async (req) => {
     const decl =
       declaration === "true" || declaration === true || declaration === 1;
     const paid =
-      paymentVerified === "true" || paymentVerified === true || paymentVerified === 1;
+      (wantsPaid && isIciciEazypayMode(modeOfPayment)) ||
+      (wantsPaid && isTestMode(modeOfPayment));
 
     const row = {
       registration_id: registrationId,

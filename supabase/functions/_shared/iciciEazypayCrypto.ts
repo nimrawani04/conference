@@ -1,5 +1,7 @@
 /**
  * ICICI Eazypay AES-128-ECB + PKCS7, Base64 ciphertext (matches PHP openssl_encrypt raw output).
+ * When reading return URLs in the browser, do not use URLSearchParams for ciphertext values:
+ * it decodes "+" as space and breaks Base64 — use decodeURIComponent on raw query pairs instead.
  */
 import CryptoJS from "npm:crypto-js@4.2.0";
 

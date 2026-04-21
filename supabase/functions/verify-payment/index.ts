@@ -1,5 +1,6 @@
 import { corsJson, handleOptions } from "../_shared/cors.ts";
 import { iciciAes128Decrypt } from "../_shared/iciciEazypayCrypto.ts";
+import { createPaymentCompletionProof } from "../_shared/paymentCompletionProof.ts";
 
 function findParam(
   query: { [key: string]: string },
@@ -28,7 +29,7 @@ function tryMatchOrderFromIciciResponse(
   aesKey: string,
   expectedOrderId: string,
 ): boolean {
-  if (!expectedOrderId) return true;
+  if (!expectedOrderId) return false;
 
   const merchantTxn = findParam(query, [
     "Merchant_Txn_Ref",
@@ -37,21 +38,19 @@ function tryMatchOrderFromIciciResponse(
     "Reference_No",
     "Reference No",
   ]);
-  if (merchantTxn) return merchantTxn === expectedOrderId;
+  if (merchantTxn !== undefined) return merchantTxn === expectedOrderId;
 
   const interchange = findParam(query, ["Interchange_Value", "Interchange Value", "InterchangeValue"]);
-  if (interchange) {
-    try {
-      const plain = iciciAes128Decrypt(interchange, aesKey);
-      const parts = plain.split("|");
-      if (parts.some((p) => p.trim() === expectedOrderId)) return true;
-      if (plain.includes(expectedOrderId)) return true;
-    } catch {
-      return true;
-    }
-  }
+  if (!interchange) return false;
 
-  return true;
+  try {
+    const plain = iciciAes128Decrypt(interchange, aesKey);
+    const parts = plain.split("|");
+    if (parts.some((p) => p.trim() === expectedOrderId)) return true;
+    return plain.includes(expectedOrderId);
+  } catch {
+    return false;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -63,6 +62,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const query = (body.query ?? body.params ?? {}) as { [key: string]: string };
     const expectedOrderId = typeof body.expectedOrderId === "string" ? body.expectedOrderId.trim() : "";
+    const registrantEmail = typeof body.registrantEmail === "string" ? body.registrantEmail.trim() : "";
 
     if (!iciciConfigured()) {
       return corsJson({ error: "ICICI_EAZYPAY_AES_KEY is not set for payment verification." }, 500);
@@ -102,8 +102,26 @@ Deno.serve(async (req) => {
       "BRN",
     ]);
 
+    if (!expectedOrderId) {
+      return corsJson({
+        success: false,
+        verified: false,
+        gateway: "icici-eazypay",
+        error: "Missing expected order reference (session). Start registration again from the payment step.",
+      }, 400);
+    }
+
+    if (!registrantEmail || !registrantEmail.includes("@")) {
+      return corsJson({
+        success: false,
+        verified: false,
+        gateway: "icici-eazypay",
+        error: "Missing or invalid registrant email for payment confirmation.",
+      }, 400);
+    }
+
     const orderOk = tryMatchOrderFromIciciResponse(query, aesKey, expectedOrderId);
-    if (expectedOrderId && !orderOk) {
+    if (!orderOk) {
       return corsJson({
         success: false,
         verified: false,
@@ -112,12 +130,31 @@ Deno.serve(async (req) => {
       });
     }
 
+    const completionSecret = (Deno.env.get("PAYMENT_COMPLETION_SECRET") ?? "").trim();
+    if (completionSecret.length < 16) {
+      return corsJson(
+        {
+          error:
+            "PAYMENT_COMPLETION_SECRET is not set or too short (min 16 characters). Add it under Edge Functions secrets.",
+        },
+        500,
+      );
+    }
+
+    const { proof, expiresAt } = await createPaymentCompletionProof(
+      completionSecret,
+      expectedOrderId,
+      registrantEmail,
+    );
+
     return corsJson({
       success: true,
       verified: true,
       gateway: "icici-eazypay",
       transactionId: uniqueRef || expectedOrderId || "",
       paymentStatus: "success",
+      completionProof: proof,
+      completionProofExpiresAt: expiresAt,
     });
   } catch (e) {
     console.error(e);

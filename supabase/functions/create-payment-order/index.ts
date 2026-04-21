@@ -1,6 +1,7 @@
 import { corsJson, handleOptions } from "../_shared/cors.ts";
 import { iciciAes128Encrypt } from "../_shared/iciciEazypayCrypto.ts";
 
+// Match ICICI portal redirection path (eazypayLink vs EazyPG); override with ICICI_EAZYPAY_BASE_URL.
 const DEFAULT_ICICI_EAZYPAY_BASE = "https://eazypay.icicibank.com/EazyPG";
 
 function trimEndSlashes(s: string): string {
@@ -56,6 +57,58 @@ function normalizeAmount(amount: number, currency: string): string {
   return String(n);
 }
 
+function normalizeIciciText(value: unknown, maxLen = 98, fallback = "NA"): string {
+  const raw = String(value ?? "").replace(/\|/g, " ").trim();
+  if (!raw) return fallback;
+  return raw.slice(0, maxLen);
+}
+
+function normalizeIciciAmount(value: string): string {
+  const digitsOnly = String(value ?? "").replace(/[^\d]/g, "");
+  const trimmed = digitsOnly.replace(/^0+/, "") || "0";
+  return trimmed.slice(0, 9);
+}
+
+function normalizeIciciMobile(value: unknown): string {
+  const digitsOnly = String(value ?? "").replace(/\D/g, "");
+  if (!digitsOnly) return "0000000000";
+  const last10 = digitsOnly.slice(-10);
+  return last10.padStart(10, "0").slice(0, 10);
+}
+
+function buildMandatoryFieldsPipe(opts: {
+  referenceNo: string;
+  subMerchantId: string;
+  amountStr: string;
+  registrationData: Record<string, unknown>;
+}): string {
+  const { referenceNo, subMerchantId, amountStr, registrationData } = opts;
+
+  const studentName = normalizeIciciText(registrationData.fullName, 98, "Student");
+  const mobile = normalizeIciciMobile(registrationData.contactNumber);
+  const email = normalizeIciciText(registrationData.email, 98, "no-reply@example.com");
+  const formNo = normalizeIciciText(registrationData.paperId, 98, "Form No");
+  const department = normalizeIciciText(registrationData.affiliation, 98, "Department");
+  const category = normalizeIciciText(registrationData.subCategory || registrationData.participantType, 98, "Category");
+  const post = normalizeIciciText(registrationData.designation, 98, "Post");
+
+  // Mandatory order as per ICICI config:
+  // 1 Reference No | 2 SUB Merchant Id | 3 PG Amount | 4 Student Name | 5 Mobile Number
+  // 6 Email Id | 7 Form No | 8 Department | 9 Category | 10 Post
+  return [
+    normalizeIciciText(referenceNo, 98, "REF"),
+    normalizeIciciText(subMerchantId, 98, "SUB"),
+    normalizeIciciAmount(amountStr),
+    studentName,
+    mobile,
+    email,
+    formNo,
+    department,
+    category,
+    post,
+  ].join("|");
+}
+
 function buildIciciEazypayUrl(opts: {
   baseUrl: string;
   merchantId: string;
@@ -66,10 +119,16 @@ function buildIciciEazypayUrl(opts: {
   returnUrl: string;
   paymode: string;
   optionalPipe: string | null;
+  registrationData: Record<string, unknown>;
 }): string {
   const { aesKey, referenceNo, subMerchantId, amountStr } = opts;
   const enc = (plain: string) => iciciAes128Encrypt(plain, aesKey);
-  const mandatoryPlain = `${referenceNo}|${subMerchantId}|${amountStr}`;
+  const mandatoryPlain = buildMandatoryFieldsPipe({
+    referenceNo,
+    subMerchantId,
+    amountStr,
+    registrationData: opts.registrationData,
+  });
   const optionalFields = opts.optionalPipe ? enc(opts.optionalPipe) : "";
 
   const pairs: [string, string][] = [
@@ -146,9 +205,10 @@ Deno.serve(async (req) => {
     const subMerchantId = (Deno.env.get("ICICI_EAZYPAY_SUB_MERCHANT_ID") ?? merchantId).trim();
     const paymode = (Deno.env.get("ICICI_EAZYPAY_PAYMODE") ?? "9").trim();
     const optionalPipe = (Deno.env.get("ICICI_EAZYPAY_OPTIONAL_FIELDS") ?? "").trim() || null;
-    const baseUrl =
-      (Deno.env.get("ICICI_EAZYPAY_BASE_URL") ?? "").trim() ||
-      "https://eazypay.icicibank.com/EazyPG";
+    const baseUrl = resolveIciciEazypayBaseUrl(
+      Deno.env.get("ICICI_EAZYPAY_BASE_URL") ?? "",
+      FRONTEND_URL,
+    );
 
     const paymentUrl = buildIciciEazypayUrl({
       baseUrl,
@@ -160,6 +220,7 @@ Deno.serve(async (req) => {
       returnUrl: returnUrlPlain,
       paymode,
       optionalPipe,
+      registrationData,
     });
 
     return corsJson({

@@ -1,118 +1,165 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Loader2, CheckCircle2, XCircle, Shield } from "lucide-react";
 import { invokeEdge } from "../lib/supabaseFunctions";
+import { parseUrlQuery } from "../lib/parseUrlQuery";
 import { clearRegistrationDraft } from "../lib/registrationStorage";
 import Navbar from "./Navbar";
 
+function parsePendingRegistration() {
+  const raw = sessionStorage.getItem("pendingRegistration");
+  if (!raw) return null;
+  try {
+    const o = JSON.parse(raw);
+    return o && typeof o === "object" ? o : null;
+  } catch {
+    return null;
+  }
+}
+
 function PaymentCallback() {
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [status, setStatus] = useState("verifying");
   const [message, setMessage] = useState("Confirming your transaction with the payment provider.");
 
+  const returnQuery = parseUrlQuery(location.search);
   const orderRef =
-    searchParams.get("orderId") ?? sessionStorage.getItem("pendingPaymentOrderId") ?? "";
+    returnQuery.orderId ?? sessionStorage.getItem("pendingPaymentOrderId") ?? "";
 
-  useEffect(() => {
-    verifyPayment();
-  }, []);
+  const completeRegistration = useCallback(
+    async (registrationData, transactionId, paymentProof) => {
+      try {
+        setMessage("Finalizing your conference registration.");
 
-  const verifyPayment = async () => {
-    const query = Object.fromEntries(searchParams.entries());
-    const expectedOrderId = sessionStorage.getItem("pendingPaymentOrderId") ?? "";
+        const payload = { ...registrationData };
+        delete payload.paymentProof;
+        payload.transactionId = transactionId;
+        payload.paymentVerified = true;
+        payload.modeOfPayment = "ICICI Eazypay";
+        payload.dateOfPayment = new Date().toISOString().split("T")[0];
+        if (paymentProof?.orderRef && paymentProof?.completionProof) {
+          payload.paymentOrderRef = paymentProof.orderRef;
+          payload.paymentCompletionProof = paymentProof.completionProof;
+        }
 
-    const responseCode = searchParams.get("Response_Code") ?? searchParams.get("Response Code");
-    const isIciciReturn =
-      responseCode != null ||
-      searchParams.get("Interchange_Value") != null ||
-      searchParams.get("Interchange Value") != null;
+        const result = await invokeEdge("register", payload);
 
-    if (!isIciciReturn) {
-      setStatus("error");
-      setMessage(
-        "The payment gateway did not return a complete response. If money was debited, contact the help desk with your bank reference.",
-      );
-      return;
-    }
+        if (result.success) {
+          sessionStorage.removeItem("pendingRegistration");
+          sessionStorage.removeItem("pendingPaymentOrderId");
+          clearRegistrationDraft();
 
-    try {
-      const result = await invokeEdge("verify-payment", {
-        query,
-        expectedOrderId,
-      });
+          const merged = {
+            ...registrationData,
+            registrationId: result.registrationId,
+            qrCode: result.qrCode,
+            transactionId: transactionId,
+            totalFeeUSD: registrationData.totalFeeUsd ?? registrationData.totalFeeUSD,
+            totalFeeINR: registrationData.totalFeeInr ?? registrationData.totalFeeINR,
+          };
+          sessionStorage.setItem("registrationResult", JSON.stringify(merged));
+          sessionStorage.setItem("openTicketAfterSuccess", "1");
 
-      if (result.verified && result.gateway === "icici-eazypay") {
-        setStatus("success");
-        setMessage("Recording your registration and issuing your ticket.");
+          setMessage("Redirecting to your confirmation.");
 
-        const registrationData = JSON.parse(sessionStorage.getItem("pendingRegistration"));
-
-        if (registrationData) {
-          const txn = result.transactionId || expectedOrderId || "";
-          await completeRegistration(registrationData, txn);
+          setTimeout(() => {
+            navigate("/registration-success");
+          }, 900);
         } else {
           setStatus("error");
-          setMessage("Your session did not include registration details. Please contact support with your order reference.");
+          setMessage("Payment was received but registration could not be saved. Please contact the help desk.");
         }
-      } else {
-        setStatus("error");
-        setMessage(
-          result?.error ||
-            "We could not confirm this payment. You can try again from registration or contact support.",
-        );
-      }
-    } catch (error) {
-      console.error("Payment verification error:", error);
-      setStatus("error");
-      setMessage("Verification could not be completed. Check your connection and try again, or contact support.");
-    }
-  };
-
-  const completeRegistration = async (registrationData, transactionId) => {
-    try {
-      setMessage("Finalizing your conference registration.");
-
-      const payload = { ...registrationData };
-      delete payload.paymentProof;
-      payload.transactionId = transactionId;
-      payload.paymentVerified = true;
-      payload.modeOfPayment = "ICICI Eazypay";
-      payload.dateOfPayment = new Date().toISOString().split("T")[0];
-
-      const result = await invokeEdge("register", payload);
-
-      if (result.success) {
-        sessionStorage.removeItem("pendingRegistration");
-        sessionStorage.removeItem("pendingPaymentOrderId");
-        clearRegistrationDraft();
-
-        const merged = {
-          ...registrationData,
-          registrationId: result.registrationId,
-          qrCode: result.qrCode,
-          transactionId: transactionId,
-          totalFeeUSD: registrationData.totalFeeUsd ?? registrationData.totalFeeUSD,
-          totalFeeINR: registrationData.totalFeeInr ?? registrationData.totalFeeINR,
-        };
-        sessionStorage.setItem("registrationResult", JSON.stringify(merged));
-        sessionStorage.setItem("openTicketAfterSuccess", "1");
-
-        setMessage("Redirecting to your confirmation.");
-
-        setTimeout(() => {
-          navigate("/registration-success");
-        }, 900);
-      } else {
+      } catch (error) {
+        console.error("Registration completion error:", error);
         setStatus("error");
         setMessage("Payment was received but registration could not be saved. Please contact the help desk.");
       }
-    } catch (error) {
-      console.error("Registration completion error:", error);
-      setStatus("error");
-      setMessage("Payment was received but registration could not be saved. Please contact the help desk.");
-    }
-  };
+    },
+    [navigate],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const verifyPayment = async () => {
+      const query = parseUrlQuery(location.search);
+      const expectedOrderId = sessionStorage.getItem("pendingPaymentOrderId") ?? "";
+      const pending = parsePendingRegistration();
+      const registrantEmail = typeof pending?.email === "string" ? pending.email.trim() : "";
+
+      const responseCode = query.Response_Code ?? query["Response Code"];
+      const isIciciReturn =
+        responseCode != null ||
+        query.Interchange_Value != null ||
+        query["Interchange Value"] != null;
+
+      if (!isIciciReturn) {
+        if (!cancelled) {
+          setStatus("error");
+          setMessage(
+            "The payment gateway did not return a complete response. If money was debited, contact the help desk with your bank reference.",
+          );
+        }
+        return;
+      }
+
+      try {
+        const result = await invokeEdge("verify-payment", {
+          query,
+          expectedOrderId,
+          registrantEmail,
+        });
+
+        if (cancelled) return;
+
+        if (result.verified && result.gateway === "icici-eazypay") {
+          if (!result.completionProof) {
+            setStatus("error");
+            setMessage(
+              "Payment confirmation could not be completed on the server. If this persists, contact support.",
+            );
+            return;
+          }
+
+          setStatus("success");
+          setMessage("Recording your registration and issuing your ticket.");
+
+          const registrationData = pending;
+          if (registrationData) {
+            const txn = result.transactionId || expectedOrderId || "";
+            await completeRegistration(registrationData, txn, {
+              orderRef: expectedOrderId,
+              completionProof: result.completionProof,
+            });
+          } else {
+            setStatus("error");
+            setMessage(
+              "Your session did not include registration details. Please contact support with your order reference.",
+            );
+          }
+        } else {
+          setStatus("error");
+          setMessage(
+            result?.error ||
+              "We could not confirm this payment. You can try again from registration or contact support.",
+          );
+        }
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Payment verification error:", error);
+        setStatus("error");
+        setMessage(
+          "Verification could not be completed. Check your connection and try again, or contact support.",
+        );
+      }
+    };
+
+    verifyPayment();
+    return () => {
+      cancelled = true;
+    };
+  }, [location.search, completeRegistration]);
 
   const accent =
     status === "success" ? "bg-[#16a34a]" : status === "error" ? "bg-red-600" : "bg-[#1a56db]";
