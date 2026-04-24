@@ -44,6 +44,22 @@ const fontImport = `
     display: flex; align-items: center; justify-content: center;
   }
 
+  /* Mobile responsive styles */
+  @media (max-width: 768px) {
+    .cert-btn {
+      font-size: 9px;
+      gap: 5px;
+    }
+    .cert-btn .btn-icon {
+      width: 24px !important;
+      height: 24px !important;
+    }
+    .cert-btn svg {
+      width: 12px !important;
+      height: 12px !important;
+    }
+  }
+
   @media print {
     html, body {
       margin: 0 !important;
@@ -129,31 +145,47 @@ export default function RegistrationTicket({ registrationData, onClose }) {
         position: "fixed", inset: 0,
         background: "rgba(0,0,0,0.78)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        zIndex: 50, padding: "16px",
+        zIndex: 50, padding: "8px",
         ...sans,
+        overflowY: "auto",
       }}>
         <div className="cert-in registration-ticket-frame" style={{
           display: "flex", flexDirection: "column",
           maxWidth: "920px", width: "100%",
           boxShadow: "0 32px 100px rgba(0,0,0,0.6)",
+          margin: "auto",
         }}>
 
           {/* ── Action bar ── */}
           <div className="no-print" style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            background: "#111", padding: "12px 20px", borderRadius: "6px 6px 0 0",
+            display: "flex", 
+            flexDirection: window.innerWidth < 480 ? "column" : "row",
+            justifyContent: "space-between", 
+            alignItems: "center",
+            background: "#111", 
+            padding: window.innerWidth < 480 ? "10px 12px" : "12px 20px", 
+            borderRadius: "6px 6px 0 0",
             borderBottom: "1px solid #2a2a2a",
+            gap: window.innerWidth < 480 ? "10px" : "0",
           }}>
             {/* Left — reg ID in mono */}
             <span style={{
               fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "11px", letterSpacing: "0.18em", color: "#555",
+              fontSize: window.innerWidth < 480 ? "9px" : "11px", 
+              letterSpacing: "0.18em", 
+              color: "#555",
             }}>
               {regId}
             </span>
 
             {/* Right — two flat icon+label buttons */}
-            <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            <div style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: window.innerWidth < 480 ? "12px" : "24px",
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}>
 
               {/* Print */}
               <button className="cert-btn cert-btn-print" onClick={() => window.print()}>
@@ -193,7 +225,7 @@ export default function RegistrationTicket({ registrationData, onClose }) {
           ══════════════════════════════════ */}
           <div ref={ticketRef} className="print-root" style={{
             background: "#f4efe4",
-            padding: "36px 44px 32px",
+            padding: window.innerWidth < 640 ? "20px 16px" : window.innerWidth < 768 ? "28px 24px" : "36px 44px 32px",
             position: "relative", overflow: "hidden",
           }}>
 
@@ -205,14 +237,37 @@ export default function RegistrationTicket({ registrationData, onClose }) {
             }} />
 
             {/* ── Row 1: meta ── */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", position: "relative" }}>
-              <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em", color: "#555", textTransform: "uppercase" }}>
+            <div style={{ 
+              display: "flex", 
+              flexDirection: window.innerWidth < 640 ? "column" : "row",
+              justifyContent: "space-between", 
+              alignItems: window.innerWidth < 640 ? "flex-start" : "center", 
+              marginBottom: "14px", 
+              position: "relative",
+              gap: window.innerWidth < 640 ? "8px" : "0",
+            }}>
+              <span style={{ 
+                fontSize: window.innerWidth < 640 ? "8px" : "10px", 
+                fontWeight: 700, 
+                letterSpacing: "0.22em", 
+                color: "#555", 
+                textTransform: "uppercase" 
+              }}>
                 Registration Confirmation
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <img src="/CUKLogo.png" alt="CUK" style={{ height: "26px", objectFit: "contain" }}
+                <img src="/CUKLogo.png" alt="CUK" style={{ 
+                  height: window.innerWidth < 640 ? "20px" : "26px", 
+                  objectFit: "contain" 
+                }}
                   onError={e => e.target.style.display = "none"} />
-                <span style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em", color: "#555", textTransform: "uppercase" }}>
+                <span style={{ 
+                  fontSize: window.innerWidth < 640 ? "8px" : "10px", 
+                  fontWeight: 700, 
+                  letterSpacing: "0.22em", 
+                  color: "#555", 
+                  textTransform: "uppercase" 
+                }}>
                   2AI Conference
                 </span>
               </div>
@@ -222,21 +277,32 @@ export default function RegistrationTicket({ registrationData, onClose }) {
             <hr style={{ border: "none", borderTop: "1px solid #bbb", margin: "0 0 24px" }} />
 
             {/* ══ MAIN HORIZONTAL LAYOUT ══ */}
-            <div style={{ display: "flex", gap: "36px", alignItems: "stretch", position: "relative" }}>
+            <div style={{ 
+              display: "flex", 
+              flexDirection: window.innerWidth < 768 ? "column" : "row",
+              gap: window.innerWidth < 768 ? "20px" : "36px", 
+              alignItems: "stretch", 
+              position: "relative" 
+            }}>
 
               {/* LEFT COLUMN — big pixel title + conf details */}
               <div style={{
-                flex: "0 0 230px",
-                display: "flex", flexDirection: "column", justifyContent: "space-between",
-                borderRight: "1.5px solid #aaa", paddingRight: "36px",
+                flex: window.innerWidth < 768 ? "1" : "0 0 230px",
+                display: "flex", 
+                flexDirection: "column", 
+                justifyContent: "space-between",
+                borderRight: window.innerWidth < 768 ? "none" : "1.5px solid #aaa",
+                borderBottom: window.innerWidth < 768 ? "1.5px solid #aaa" : "none",
+                paddingRight: window.innerWidth < 768 ? "0" : "36px",
+                paddingBottom: window.innerWidth < 768 ? "20px" : "0",
               }}>
                 <div style={{
                   ...mono,
-                  fontSize: "32px",
+                  fontSize: window.innerWidth < 480 ? "18px" : window.innerWidth < 640 ? "22px" : window.innerWidth < 768 ? "26px" : "32px",
                   fontWeight: 400,
                   lineHeight: 1.5,
                   color: "#111",
-                  margin: "0 0 24px",
+                  margin: window.innerWidth < 768 ? "0 0 16px" : "0 0 24px",
                   textTransform: "uppercase",
                   letterSpacing: "0.01em",
                   whiteSpace: "pre-line",
@@ -249,15 +315,36 @@ in AI`}
                 </div>
 
                 {/* detail pills */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ 
+                  display: "flex", 
+                  flexDirection: window.innerWidth < 480 ? "column" : "row",
+                  flexWrap: "wrap",
+                  gap: "10px" 
+                }}>
                   {[
                     { label: "Dates", value: "18–20 June 2026" },
                     { label: "Venue", value: "CUK, Ganderbal" },
                     { label: "Fee", value: fee },
                   ].map(({ label, value }) => (
-                    <div key={label} style={{ borderLeft: "2px solid #999", paddingLeft: "10px" }}>
-                      <p style={{ fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em", color: "#888", margin: "0 0 2px", textTransform: "uppercase" }}>{label}</p>
-                      <p style={{ ...mono, fontSize: "11px", color: "#222", margin: 0 }}>{value}</p>
+                    <div key={label} style={{ 
+                      borderLeft: "2px solid #999", 
+                      paddingLeft: "10px",
+                      flex: window.innerWidth < 480 ? "1" : "0 0 auto",
+                    }}>
+                      <p style={{ 
+                        fontSize: window.innerWidth < 640 ? "7.5px" : "8.5px", 
+                        fontWeight: 700, 
+                        letterSpacing: "0.18em", 
+                        color: "#888", 
+                        margin: "0 0 2px", 
+                        textTransform: "uppercase" 
+                      }}>{label}</p>
+                      <p style={{ 
+                        ...mono, 
+                        fontSize: window.innerWidth < 640 ? "9px" : "11px", 
+                        color: "#222", 
+                        margin: 0 
+                      }}>{value}</p>
                     </div>
                   ))}
                 </div>
@@ -267,38 +354,58 @@ in AI`}
               <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
                 {/* Presented-to box */}
-                <div style={{ border: "1.5px solid #222", marginBottom: "20px" }}>
+                <div style={{ border: "1.5px solid #222", marginBottom: window.innerWidth < 640 ? "16px" : "20px" }}>
                   {/* header strip */}
                   <div style={{
                     borderBottom: "1.5px solid #222",
-                    padding: "7px 20px",
-                    display: "flex", alignItems: "center", gap: "12px",
+                    padding: window.innerWidth < 640 ? "6px 12px" : "7px 20px",
+                    display: "flex", alignItems: "center", gap: window.innerWidth < 640 ? "8px" : "12px",
                     background: "rgba(0,0,0,0.04)",
                   }}>
                     <div style={{ flex: 1, height: "1px", background: "#666" }} />
-                    <span style={{ fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.22em", color: "#555", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                    <span style={{ 
+                      fontSize: window.innerWidth < 640 ? "7.5px" : "9.5px", 
+                      fontWeight: 700, 
+                      letterSpacing: "0.22em", 
+                      color: "#555", 
+                      textTransform: "uppercase", 
+                      whiteSpace: "nowrap" 
+                    }}>
                       Proudly Presented To
                     </span>
                     <div style={{ flex: 1, height: "1px", background: "#666" }} />
                   </div>
 
                   {/* logo + name */}
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div style={{ 
+                    display: "flex", 
+                    flexDirection: window.innerWidth < 480 ? "column" : "row",
+                    alignItems: "center" 
+                  }}>
                     <div style={{
-                      borderRight: "1.5px solid #222",
-                      padding: "16px 20px",
+                      borderRight: window.innerWidth < 480 ? "none" : "1.5px solid #222",
+                      borderBottom: window.innerWidth < 480 ? "1.5px solid #222" : "none",
+                      padding: window.innerWidth < 640 ? "12px 16px" : "16px 20px",
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      minWidth: "86px",
+                      minWidth: window.innerWidth < 480 ? "100%" : "86px",
                     }}>
-                      <img src="/logo.png" alt="2AI" style={{ height: "42px", objectFit: "contain" }}
+                      <img src="/logo.png" alt="2AI" style={{ 
+                        height: window.innerWidth < 640 ? "32px" : "42px", 
+                        objectFit: "contain" 
+                      }}
                         onError={e => { e.target.style.display = "none"; }} />
                     </div>
-                    <div style={{ padding: "16px 20px" }}>
+                    <div style={{ 
+                      padding: window.innerWidth < 640 ? "12px 16px" : "16px 20px",
+                      width: window.innerWidth < 480 ? "100%" : "auto",
+                      textAlign: window.innerWidth < 480 ? "center" : "left",
+                    }}>
                       <h2 style={{
                         ...mono,
-                        fontSize: "clamp(15px, 2.6vw, 24px)",
+                        fontSize: window.innerWidth < 480 ? "14px" : window.innerWidth < 640 ? "16px" : "clamp(15px, 2.6vw, 24px)",
                         fontWeight: 400, color: "#111",
                         margin: 0, textTransform: "uppercase", letterSpacing: "0.04em",
+                        wordBreak: "break-word",
                       }}>
                         {registrationData.fullName}
                       </h2>
@@ -307,7 +414,12 @@ in AI`}
                 </div>
 
                 {/* 2×2 details grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 28px", marginBottom: "20px" }}>
+                <div style={{ 
+                  display: "grid", 
+                  gridTemplateColumns: window.innerWidth < 640 ? "1fr" : "1fr 1fr", 
+                  gap: window.innerWidth < 640 ? "10px" : "10px 28px", 
+                  marginBottom: window.innerWidth < 640 ? "16px" : "20px" 
+                }}>
                   {[
                     ["Affiliation", registrationData.affiliation],
                     ["Designation", registrationData.designation],
@@ -316,8 +428,21 @@ in AI`}
                     ["Registration ID", regId],
                   ].map(([label, value]) => (
                     <div key={label} style={{ borderBottom: "1px solid #ccc", paddingBottom: "7px" }}>
-                      <p style={{ fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em", color: "#888", margin: "0 0 2px", textTransform: "uppercase" }}>{label}</p>
-                      <p style={{ fontSize: "12px", color: "#222", margin: 0, ...(label === "Registration ID" ? mono : {}) }}>{value}</p>
+                      <p style={{ 
+                        fontSize: window.innerWidth < 640 ? "7.5px" : "8.5px", 
+                        fontWeight: 700, 
+                        letterSpacing: "0.18em", 
+                        color: "#888", 
+                        margin: "0 0 2px", 
+                        textTransform: "uppercase" 
+                      }}>{label}</p>
+                      <p style={{ 
+                        fontSize: window.innerWidth < 640 ? "10px" : "12px", 
+                        color: "#222", 
+                        margin: 0, 
+                        wordBreak: "break-word",
+                        ...(label === "Registration ID" ? mono : {}) 
+                      }}>{value}</p>
                     </div>
                   ))}
                 </div>
@@ -325,33 +450,90 @@ in AI`}
                 {/* Paper details (authors only) */}
                 {registrationData.participantType === "Author" && registrationData.paperId && (
                   <div style={{
-                    border: "1px dashed #aaa", padding: "10px 14px",
-                    background: "rgba(255,255,255,0.35)", marginBottom: "20px",
+                    border: "1px dashed #aaa", 
+                    padding: window.innerWidth < 640 ? "8px 10px" : "10px 14px",
+                    background: "rgba(255,255,255,0.35)", 
+                    marginBottom: window.innerWidth < 640 ? "16px" : "20px",
                   }}>
-                    <p style={{ fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.18em", color: "#888", margin: "0 0 8px", textTransform: "uppercase" }}>Paper Details</p>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 20px" }}>
+                    <p style={{ 
+                      fontSize: window.innerWidth < 640 ? "7.5px" : "8.5px", 
+                      fontWeight: 700, 
+                      letterSpacing: "0.18em", 
+                      color: "#888", 
+                      margin: "0 0 8px", 
+                      textTransform: "uppercase" 
+                    }}>Paper Details</p>
+                    <div style={{ 
+                      display: "grid", 
+                      gridTemplateColumns: window.innerWidth < 480 ? "1fr" : "1fr 1fr", 
+                      gap: window.innerWidth < 480 ? "6px" : "6px 20px" 
+                    }}>
                       {[["Paper ID", registrationData.paperId], ["Authors", registrationData.numAuthors]].map(([l, v]) => (
                         <div key={l}>
-                          <p style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#aaa", margin: "0 0 1px", textTransform: "uppercase" }}>{l}</p>
-                          <p style={{ ...mono, fontSize: "11px", color: "#222", margin: 0 }}>{v}</p>
+                          <p style={{ 
+                            fontSize: window.innerWidth < 640 ? "7px" : "8px", 
+                            fontWeight: 700, 
+                            letterSpacing: "0.14em", 
+                            color: "#aaa", 
+                            margin: "0 0 1px", 
+                            textTransform: "uppercase" 
+                          }}>{l}</p>
+                          <p style={{ 
+                            ...mono, 
+                            fontSize: window.innerWidth < 640 ? "9px" : "11px", 
+                            color: "#222", 
+                            margin: 0 
+                          }}>{v}</p>
                         </div>
                       ))}
-                      <div style={{ gridColumn: "span 2" }}>
-                        <p style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#aaa", margin: "0 0 1px", textTransform: "uppercase" }}>Title</p>
-                        <p style={{ fontSize: "11px", color: "#222", margin: 0 }}>{registrationData.paperTitle}</p>
+                      <div style={{ gridColumn: window.innerWidth < 480 ? "span 1" : "span 2" }}>
+                        <p style={{ 
+                          fontSize: window.innerWidth < 640 ? "7px" : "8px", 
+                          fontWeight: 700, 
+                          letterSpacing: "0.14em", 
+                          color: "#aaa", 
+                          margin: "0 0 1px", 
+                          textTransform: "uppercase" 
+                        }}>Title</p>
+                        <p style={{ 
+                          fontSize: window.innerWidth < 640 ? "9px" : "11px", 
+                          color: "#222", 
+                          margin: 0,
+                          wordBreak: "break-word",
+                        }}>{registrationData.paperTitle}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Bottom: congrats | QR | signature */}
-                <div style={{ borderTop: "1px solid #bbb", paddingTop: "14px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "16px" }}>
+                <div style={{ 
+                  borderTop: "1px solid #bbb", 
+                  paddingTop: "14px", 
+                  display: "flex", 
+                  flexDirection: window.innerWidth < 640 ? "column" : "row",
+                  justifyContent: "space-between", 
+                  alignItems: window.innerWidth < 640 ? "center" : "flex-end", 
+                  gap: window.innerWidth < 640 ? "12px" : "16px",
+                  textAlign: window.innerWidth < 640 ? "center" : "left",
+                }}>
                   {/* Congrats text */}
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.2em", color: "#555", margin: "0 0 2px", textTransform: "uppercase" }}>
+                  <div style={{ flex: 1, order: window.innerWidth < 640 ? 2 : 1 }}>
+                    <p style={{ 
+                      fontSize: window.innerWidth < 640 ? "7.5px" : "9px", 
+                      fontWeight: 700, 
+                      letterSpacing: "0.2em", 
+                      color: "#555", 
+                      margin: "0 0 2px", 
+                      textTransform: "uppercase" 
+                    }}>
                       Congratulations &amp; Thank You
                     </p>
-                    <p style={{ fontSize: "9px", color: "#999", margin: 0 }}>
+                    <p style={{ 
+                      fontSize: window.innerWidth < 640 ? "7.5px" : "9px", 
+                      color: "#999", 
+                      margin: 0 
+                    }}>
                       for registering for the 2AI Conference 2026
                     </p>
                   </div>
@@ -359,23 +541,58 @@ in AI`}
                   {/* QR — large enough for phone cameras to resolve modules (~1:1 scan box) */}
                   {qrCodeUrl && (
                     <div style={{
-                      display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
-                      borderLeft: "1px solid #ccc", borderRight: "1px solid #ccc",
-                      padding: "0 12px",
+                      display: "flex", 
+                      flexDirection: "column", 
+                      alignItems: "center", 
+                      gap: "4px",
+                      borderLeft: window.innerWidth < 640 ? "none" : "1px solid #ccc", 
+                      borderRight: window.innerWidth < 640 ? "none" : "1px solid #ccc",
+                      borderTop: window.innerWidth < 640 ? "1px solid #ccc" : "none",
+                      borderBottom: window.innerWidth < 640 ? "1px solid #ccc" : "none",
+                      padding: window.innerWidth < 640 ? "12px 0" : "0 12px",
+                      order: window.innerWidth < 640 ? 1 : 2,
                     }}>
-                      <img src={qrCodeUrl} alt="QR" style={{ width: "100px", height: "100px", display: "block" }} />
-                      <p style={{ ...mono, fontSize: "7px", letterSpacing: "0.16em", color: "#aaa", textTransform: "uppercase", margin: 0 }}>
+                      <img src={qrCodeUrl} alt="QR" style={{ 
+                        width: window.innerWidth < 640 ? "80px" : "100px", 
+                        height: window.innerWidth < 640 ? "80px" : "100px", 
+                        display: "block" 
+                      }} />
+                      <p style={{ 
+                        ...mono, 
+                        fontSize: window.innerWidth < 640 ? "6px" : "7px", 
+                        letterSpacing: "0.16em", 
+                        color: "#aaa", 
+                        textTransform: "uppercase", 
+                        margin: 0 
+                      }}>
                         Scan to Verify
                       </p>
                     </div>
                   )}
 
                   {/* Signature */}
-                  <div style={{ textAlign: "right", flex: 1 }}>
-                    <p style={{ fontFamily: "cursive", fontSize: "17px", color: "#222", margin: "0 0 2px", lineHeight: 1.2 }}>
+                  <div style={{ 
+                    textAlign: window.innerWidth < 640 ? "center" : "right", 
+                    flex: 1,
+                    order: 3,
+                  }}>
+                    <p style={{ 
+                      fontFamily: "cursive", 
+                      fontSize: window.innerWidth < 640 ? "14px" : "17px", 
+                      color: "#222", 
+                      margin: "0 0 2px", 
+                      lineHeight: 1.2 
+                    }}>
                       Organizing Committee
                     </p>
-                    <p style={{ fontSize: "8.5px", fontWeight: 700, letterSpacing: "0.16em", color: "#888", margin: 0, textTransform: "uppercase" }}>
+                    <p style={{ 
+                      fontSize: window.innerWidth < 640 ? "7px" : "8.5px", 
+                      fontWeight: 700, 
+                      letterSpacing: "0.16em", 
+                      color: "#888", 
+                      margin: 0, 
+                      textTransform: "uppercase" 
+                    }}>
                       2AI Conference 2026
                     </p>
                   </div>
@@ -384,8 +601,20 @@ in AI`}
             </div>
 
             {/* fine print */}
-            <hr style={{ border: "none", borderTop: "1px solid #ccc", margin: "20px 0 10px", position: "relative" }} />
-            <p style={{ fontSize: "9.5px", color: "#999", textAlign: "center", margin: 0, position: "relative" }}>
+            <hr style={{ 
+              border: "none", 
+              borderTop: "1px solid #ccc", 
+              margin: window.innerWidth < 640 ? "16px 0 8px" : "20px 0 10px", 
+              position: "relative" 
+            }} />
+            <p style={{ 
+              fontSize: window.innerWidth < 640 ? "7.5px" : "9.5px", 
+              color: "#999", 
+              textAlign: "center", 
+              margin: 0, 
+              position: "relative",
+              lineHeight: 1.4,
+            }}>
               Official registration confirmation · 2nd International Conference on Advances in AI (2AI-2026) ·{" "}
               <a href="mailto:info@2aiconference.com" style={{ color: "#777" }}>info@2aiconference.com</a>
             </p>
@@ -393,14 +622,22 @@ in AI`}
 
           {/* ── Bottom bar ── */}
           <div className="no-print" style={{
-            background: "#111", padding: "10px 20px",
-            display: "flex", justifyContent: "space-between", alignItems: "center",
+            background: "#111", 
+            padding: window.innerWidth < 480 ? "10px 12px" : "10px 20px",
+            display: "flex", 
+            flexDirection: window.innerWidth < 480 ? "column" : "row",
+            justifyContent: "space-between", 
+            alignItems: "center",
             borderRadius: "0 0 6px 6px",
             borderTop: "1px solid #1e1e1e",
+            gap: window.innerWidth < 480 ? "10px" : "0",
           }}>
             <span style={{
               fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "10px", color: "#444", letterSpacing: "0.14em",
+              fontSize: window.innerWidth < 480 ? "8px" : "10px", 
+              color: "#444", 
+              letterSpacing: "0.14em",
+              textAlign: "center",
             }}>
               A copy will be sent to your email
             </span>
@@ -408,13 +645,14 @@ in AI`}
               background: "transparent",
               color: "#f4efe4",
               border: "1.5px solid #333",
-              padding: "6px 22px",
+              padding: window.innerWidth < 480 ? "8px 24px" : "6px 22px",
               fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "11px",
+              fontSize: window.innerWidth < 480 ? "10px" : "11px",
               letterSpacing: "0.18em",
               textTransform: "uppercase",
               cursor: "pointer",
               transition: "border-color 0.15s, color 0.15s",
+              width: window.innerWidth < 480 ? "100%" : "auto",
             }}
               onMouseEnter={e => { e.target.style.borderColor = "#f4efe4"; e.target.style.color = "#f4efe4"; }}
               onMouseLeave={e => { e.target.style.borderColor = "#333"; e.target.style.color = "#f4efe4"; }}
