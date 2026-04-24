@@ -5,6 +5,7 @@ import PageLayout from "./PageLayout";
 import { FileText, Shield, Presentation, FileDown, ExternalLink } from "lucide-react";
 
 function CallForPapers() {
+  const pdfUrl = `${import.meta.env.BASE_URL}copyright.pdf`;
   const sections = [
     {
       id: 1,
@@ -117,7 +118,7 @@ function CallForPapers() {
           Download and review the copyright form. You can also view it directly below.
         </p>
         <a
-          href="/copyright.pdf"
+          href={pdfUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold hover:underline mb-4"
@@ -126,11 +127,21 @@ function CallForPapers() {
           <ExternalLink size={14} />
         </a>
         <div className="border border-gray-200 rounded overflow-hidden">
-          <iframe
-            src="/copyright.pdf"
-            title="Copyright Form PDF"
-            className="w-full h-[700px]"
-          />
+          <object data={pdfUrl} type="application/pdf" className="w-full h-[700px]">
+            <embed src={pdfUrl} type="application/pdf" className="w-full h-[700px]" />
+            <div className="p-4 text-sm text-gray-700">
+              PDF preview is not available in this browser.{" "}
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 font-semibold underline"
+              >
+                Open or download the copyright form
+              </a>
+              .
+            </div>
+          </object>
         </div>
       </div>
 
