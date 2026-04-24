@@ -1,10 +1,45 @@
 // Edited by Milad Ajaz 
 // https://m4milaad.github.io/ 
 
+import { useEffect, useState } from "react";
 import PageLayout from "./PageLayout";
 import RegistrationForm from "./RegistrationForm";
 
+const FX_API_URL = "https://fxapi.app/api/INR/USD.json";
+const DEFAULT_USD_TO_INR = 90;
+
+function isLateFeeActive(now = new Date()) {
+  const year = now.getFullYear();
+  const cutoff = new Date(year, 4, 5, 23, 59, 59, 999);
+  return now > cutoff;
+}
+
 function Registration() {
+  const [usdToInrRate, setUsdToInrRate] = useState(DEFAULT_USD_TO_INR);
+
+  useEffect(() => {
+    let active = true;
+    const loadFxRate = async () => {
+      try {
+        const response = await fetch(FX_API_URL);
+        if (!response.ok) throw new Error("FX API request failed");
+        const data = await response.json();
+        const inrToUsd = Number(data?.rate);
+        if (!Number.isFinite(inrToUsd) || inrToUsd <= 0) throw new Error("Invalid FX rate");
+        if (active) setUsdToInrRate(1 / inrToUsd);
+      } catch (error) {
+        console.error("Unable to fetch live FX rate; using fallback", error);
+        if (active) setUsdToInrRate(DEFAULT_USD_TO_INR);
+      }
+    };
+    loadFxRate();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const formatFee = (usd) => `$ ${usd} (Rs. ${Math.round(usd * usdToInrRate)})`;
+
   return (
     <PageLayout 
       title="Registration"
@@ -43,13 +78,13 @@ function Registration() {
                   Authors
                 </td>
                 <td className="p-3 border border-gray-300">UG/PG/PhD students</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 80 (Rs. 7200)</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 150</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(80)}</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(150)}</td>
               </tr>
               <tr>
                 <td className="p-3 border border-gray-300">Others</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 120 (Rs. 10800)</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 200</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(120)}</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(200)}</td>
               </tr>
 
               {/* Non-Authors Section */}
@@ -58,13 +93,13 @@ function Registration() {
                   Non authors
                 </td>
                 <td className="p-3 border border-gray-300">UG/PG/PhD students</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 50 (Rs. 4500)</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 75</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(50)}</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(75)}</td>
               </tr>
               <tr>
                 <td className="p-3 border border-gray-300">Others</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 60 (Rs. 5400)</td>
-                <td className="p-3 border border-gray-300 font-semibold">$ 100</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(60)}</td>
+                <td className="p-3 border border-gray-300 font-semibold">{formatFee(100)}</td>
               </tr>
             </tbody>
           </table>
@@ -80,7 +115,14 @@ function Registration() {
           <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
             <p className="text-gray-700 text-sm">
               <span className="font-bold">Workshop:</span> Registration fee for Pre-Conference Workshop (17th June 2026):{" "}
-              <span className="font-bold text-red-600">$ 20 (Rs. 1800)</span>
+              <span className="font-bold text-red-600">{formatFee(20)}</span>
+            </p>
+          </div>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <p className="text-gray-700 text-sm">
+              <span className="font-bold">Late Fee Policy:</span> A 20% late fee is applied to registration fees
+              for payments made after May 5.
+              {isLateFeeActive() && <span className="font-bold text-red-700"> Late fee is currently active.</span>}
             </p>
           </div>
         </div>

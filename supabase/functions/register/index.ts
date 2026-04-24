@@ -49,6 +49,7 @@ type TicketPdfInput = {
   paperId: string | null | undefined;
   transactionId: string | null | undefined;
   participantType: string | null | undefined;
+  attendanceMode: string | null | undefined;
   feeUsd: number | null;
   feeInr: number | null;
   qrCodeDataUrl: string;
@@ -95,6 +96,7 @@ async function buildTicketPdfBase64(input: TicketPdfInput): Promise<string> {
     `Name: ${safeText(input.fullName)}`,
     `Email: ${safeText(input.email)}`,
     `Participant Type: ${safeText(input.participantType)}`,
+    `Attendance Mode: ${safeText(input.attendanceMode)}`,
     `Paper ID: ${safeText(input.paperId)}`,
     `Transaction ID: ${safeText(input.transactionId)}`,
     `Fee Paid: ${safeText(feeLine)}`,
@@ -161,6 +163,7 @@ Deno.serve(async (req) => {
       numAuthors,
       subCategory,
       region,
+      attendanceMode,
       attendWorkshop,
       totalFeeUsd,
       totalFeeInr,
@@ -255,6 +258,7 @@ Deno.serve(async (req) => {
       sub_category: subCategory ?? null,
       region: region ?? null,
       attend_workshop: attendWorkshop ?? null,
+      attendance_mode: attendanceMode ?? null,
       total_fee_usd: parseNumOrNull(totalFeeUsd),
       total_fee_inr: parseNumOrNull(totalFeeInr),
       mode_of_payment: modeOfPayment ?? null,
@@ -295,6 +299,7 @@ Deno.serve(async (req) => {
             paperId,
             transactionId,
             participantType: participantType ?? null,
+            attendanceMode: attendanceMode ?? null,
             feeUsd,
             feeInr,
             qrCodeDataUrl: ticketQr,

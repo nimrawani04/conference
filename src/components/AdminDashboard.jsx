@@ -43,6 +43,7 @@ function rowToTicketData(r) {
     paperTitle: r.paper_title || "",
     numAuthors: r.num_authors != null && r.num_authors !== "" ? String(r.num_authors) : "",
     attendWorkshop: r.attend_workshop || "",
+    attendanceMode: r.attendance_mode || "",
     modeOfPayment: r.mode_of_payment || "",
     transactionId: r.transaction_id || "",
     totalFeeUSD: Number.isFinite(usd) ? usd : 0,
@@ -133,6 +134,7 @@ export default function AdminDashboard() {
         r.participant_type,
         r.paper_id,
         r.transaction_id,
+        r.attendance_mode,
       ]
         .filter(Boolean)
         .join(" ")
@@ -163,6 +165,7 @@ export default function AdminDashboard() {
         r.num_authors != null && r.num_authors !== "" ? String(r.num_authors) : "",
       sub_category: r.sub_category ?? "",
       region: r.region ?? "",
+      attendance_mode: r.attendance_mode ?? "",
       attend_workshop: r.attend_workshop ?? "",
       total_fee_usd:
         r.total_fee_usd != null && r.total_fee_usd !== "" ? String(r.total_fee_usd) : "",
@@ -197,6 +200,7 @@ export default function AdminDashboard() {
         num_authors: editForm.num_authors,
         sub_category: editForm.sub_category,
         region: editForm.region,
+        attendance_mode: editForm.attendance_mode,
         attend_workshop: editForm.attend_workshop,
         total_fee_usd: editForm.total_fee_usd,
         total_fee_inr: editForm.total_fee_inr,
@@ -447,6 +451,18 @@ export default function AdminDashboard() {
                   />
                 </label>
                 <label className="block">
+                  <span className="text-xs font-semibold text-gray-600">Attendance mode</span>
+                  <select
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
+                    value={editForm.attendance_mode}
+                    onChange={(e) => setEditForm((f) => ({ ...f, attendance_mode: e.target.value }))}
+                  >
+                    <option value="">Select mode</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Online">Online</option>
+                  </select>
+                </label>
+                <label className="block">
                   <span className="text-xs font-semibold text-gray-600">Fee (USD)</span>
                   <input
                     inputMode="decimal"
@@ -586,6 +602,7 @@ export default function AdminDashboard() {
                   <th className="px-3 py-3 whitespace-nowrap">Name</th>
                   <th className="px-3 py-3 whitespace-nowrap">Email</th>
                   <th className="px-3 py-3 whitespace-nowrap">Type</th>
+                  <th className="px-3 py-3 whitespace-nowrap">Attendance</th>
                   <th className="px-3 py-3 whitespace-nowrap">Fee</th>
                   <th className="px-3 py-3 whitespace-nowrap">Paid</th>
                   <th className="px-3 py-3 whitespace-nowrap">Registered</th>
@@ -595,7 +612,7 @@ export default function AdminDashboard() {
               <tbody className="divide-y divide-gray-100">
                 {filtered.length === 0 && !regsLoading ? (
                   <tr>
-                    <td colSpan={8} className="px-3 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-3 py-8 text-center text-gray-500">
                       {regs.length === 0 ? "No registrations yet." : "No rows match your filter."}
                     </td>
                   </tr>
@@ -611,6 +628,9 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
                         {r.participant_type || "—"}
+                      </td>
+                      <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
+                        {r.attendance_mode || "—"}
                       </td>
                       <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
                         {formatFee(r.total_fee_usd, r.total_fee_inr)}

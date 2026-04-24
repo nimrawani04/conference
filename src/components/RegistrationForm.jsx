@@ -21,12 +21,27 @@ const DEFAULT_FORM = {
   numAuthors: "",
   subCategory: "UG / PG / PhD Student",
   region: "South Asian",
+  attendanceMode: "Offline",
   attendWorkshop: "No",
   modeOfPayment: "",
   transactionId: "",
   dateOfPayment: "",
   declaration: false,
 };
+
+const FX_API_URL = "https://fxapi.app/api/INR/USD.json";
+const DEFAULT_USD_TO_INR = 90;
+const LATE_FEE_MULTIPLIER = 1.2;
+
+function roundToNearestRupee(amount) {
+  return Math.round(amount);
+}
+
+function isLateFeeActive(now = new Date()) {
+  const year = now.getFullYear();
+  const cutoff = new Date(year, 4, 5, 23, 59, 59, 999);
+  return now > cutoff;
+}
 
 function getInitialRegistrationState() {
   const draft = loadRegistrationDraft();
@@ -40,6 +55,8 @@ function RegistrationForm() {
   const [currentStep, setCurrentStep] = useState(initial.currentStep);
   const [paymentBusy, setPaymentBusy] = useState(false);
   const [formData, setFormData] = useState(initial.formData);
+  const [usdToInrRate, setUsdToInrRate] = useState(DEFAULT_USD_TO_INR);
+  const [fxLoaded, setFxLoaded] = useState(false);
 
   const [fee, setFee] = useState({ usd: 0, inr: 0 });
 
@@ -68,8 +85,37 @@ function RegistrationForm() {
   }, [formData, currentStep]);
 
   useEffect(() => {
+    let active = true;
+    const loadFxRate = async () => {
+      try {
+        const response = await fetch(FX_API_URL);
+        if (!response.ok) throw new Error("FX API request failed");
+        const data = await response.json();
+        const inrToUsd = Number(data?.rate);
+        if (!Number.isFinite(inrToUsd) || inrToUsd <= 0) {
+          throw new Error("Invalid FX rate");
+        }
+        const liveUsdToInr = 1 / inrToUsd;
+        if (active) {
+          setUsdToInrRate(liveUsdToInr);
+          setFxLoaded(true);
+        }
+      } catch (error) {
+        console.error("Unable to fetch live FX rate; using fallback", error);
+        if (active) {
+          setUsdToInrRate(DEFAULT_USD_TO_INR);
+          setFxLoaded(true);
+        }
+      }
+    };
+    loadFxRate();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     let usd = 0;
-    let inr = 0;
 
     const isAuthor = formData.participantType === "Author";
     const isStudent = formData.subCategory === "UG / PG / PhD Student";
@@ -79,34 +125,34 @@ function RegistrationForm() {
     if (isAuthor) {
       if (isStudent) {
         usd = isSouthAsian ? 80 : 150;
-        inr = isSouthAsian ? 7200 : 0;
       } else {
         usd = isSouthAsian ? 120 : 200;
-        inr = isSouthAsian ? 10800 : 0;
       }
     } else {
       if (isStudent) {
         usd = isSouthAsian ? 50 : 75;
-        inr = isSouthAsian ? 4500 : 0;
       } else {
         usd = isSouthAsian ? 60 : 100;
-        inr = isSouthAsian ? 5400 : 0;
       }
     }
 
     if (wantsWorkshop) {
       usd += 20;
-      if (isSouthAsian) {
-        inr += 1800;
-      }
     }
 
-    setFee({ usd, inr });
+    if (isLateFeeActive()) {
+      usd *= LATE_FEE_MULTIPLIER;
+    }
+
+    const finalUsd = Math.round(usd * 100) / 100;
+    const inr = roundToNearestRupee(finalUsd * usdToInrRate);
+    setFee({ usd: finalUsd, inr });
   }, [
     formData.participantType,
     formData.subCategory,
     formData.region,
     formData.attendWorkshop,
+    usdToInrRate,
   ]);
 
   const handleSubmit = async (e) => {
@@ -127,8 +173,8 @@ function RegistrationForm() {
     setPaymentBusy(true);
     try {
       await startGatewayCheckout({
-        amount: fee.inr > 0 ? fee.inr : fee.usd,
-        currency: fee.inr > 0 ? "INR" : "USD",
+        amount: fee.inr,
+        currency: "INR",
         registrationData: registrationPayload,
       });
     } catch (err) {
@@ -175,6 +221,14 @@ function RegistrationForm() {
         <p className="text-sm text-gray-600 mb-8 text-center">
           (Based on Approved Fee Structure)
         </p>
+        <p className="text-sm text-gray-600 mb-2 text-center">
+          Exchange rate: 1 USD = ₹ {usdToInrRate.toFixed(2)} {fxLoaded ? "(live)" : "(loading...)"}
+        </p>
+        {isLateFeeActive() && (
+          <p className="text-sm text-red-600 mb-8 text-center font-semibold">
+            Late fee active: 20% added to registration fee after May 5.
+          </p>
+        )}
 
       {/* Stepper Progress */}
       <div className="flex items-center justify-center mb-8">
@@ -323,6 +377,30 @@ function RegistrationForm() {
               </div>
             </section>
 
+            <section className="mb-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-3">
+                Attendance Mode
+              </h4>
+              <div className="flex flex-wrap gap-4">
+                {["Offline", "Online"].map((mode) => (
+                  <label
+                    key={mode}
+                    className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 border border-gray-200 rounded shadow-sm hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  >
+                    <input
+                      type="radio"
+                      name="attendanceMode"
+                      value={mode}
+                      checked={formData.attendanceMode === mode}
+                      onChange={handleChange}
+                      className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    />
+                    <span className="font-semibold">{mode}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+
             {/* C. Author Details */}
             {formData.participantType === "Author" && (
               <section className="bg-blue-50 p-5 rounded-lg border border-blue-100 animate-slideDown">
@@ -444,7 +522,9 @@ function RegistrationForm() {
                     onChange={handleChange}
                     className="text-blue-600 focus:ring-blue-500 h-4 w-4"
                   />
-                  <span className="font-semibold text-blue-700">Yes (+ $20 / ₹1,800)</span>
+                  <span className="font-semibold text-blue-700">
+                    Yes (+ $20 / ₹ {roundToNearestRupee(20 * usdToInrRate)})
+                  </span>
                 </label>
                 <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 rounded border border-gray-200 shadow-sm">
                   <input
@@ -467,7 +547,7 @@ function RegistrationForm() {
                 <span>Total Payable Amount</span>
               </h4>
               <div className="text-4xl font-extrabold text-[#1a56db] animate-zoomFadeIn">
-                $ {fee.usd} {fee.inr > 0 && <span className="text-2xl text-gray-500 font-bold ml-2">/ ₹ {fee.inr}</span>}
+                ₹ {fee.inr} <span className="text-2xl text-gray-500 font-bold ml-2">($ {fee.usd})</span>
               </div>
             </section>
           </div>
@@ -483,8 +563,7 @@ function RegistrationForm() {
             <div className="bg-[#1a56db] text-white rounded p-4 mb-6 text-center shadow">
               <p className="text-sm opacity-90 mb-1">Amount due</p>
               <p className="text-2xl font-bold">
-                $ {fee.usd}
-                {fee.inr > 0 ? ` / ₹ ${fee.inr}` : ""}
+                ₹ {fee.inr} ($ {fee.usd})
               </p>
             </div>
 

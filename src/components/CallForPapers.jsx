@@ -111,6 +111,29 @@ function CallForPapers() {
         </a>
       </div>
 
+      <div className="bg-white rounded shadow-sm p-6 mb-6">
+        <h3 className="text-lg font-bold text-gray-800 mb-2">Copyright Form</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Download and review the copyright form. You can also view it directly below.
+        </p>
+        <a
+          href="/copyright.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold hover:underline mb-4"
+        >
+          Open Copyright PDF
+          <ExternalLink size={14} />
+        </a>
+        <div className="border border-gray-200 rounded overflow-hidden">
+          <iframe
+            src="/copyright.pdf"
+            title="Copyright Form PDF"
+            className="w-full h-[700px]"
+          />
+        </div>
+      </div>
+
       {/* Guidelines Grid */}
       <div className="grid gap-6 md:grid-cols-2">
         {sections.map((sec) => (

@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from("registrations")
       .select(
-        "registration_id, full_name, email, participant_type, affiliation, designation, paper_id, paper_title, created_at",
+        "registration_id, full_name, email, participant_type, attendance_mode, affiliation, designation, paper_id, paper_title, created_at",
       )
       .eq("registration_id", registrationId)
       .maybeSingle();
@@ -43,6 +43,7 @@ Deno.serve(async (req) => {
         fullName: data.full_name,
         email: data.email,
         participantType: data.participant_type,
+        attendanceMode: data.attendance_mode,
         affiliation: data.affiliation,
         designation: data.designation,
         paperId: data.paper_id,

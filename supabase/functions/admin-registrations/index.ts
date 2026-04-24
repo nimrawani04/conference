@@ -43,6 +43,7 @@ Deno.serve(async (req) => {
           "num_authors",
           "sub_category",
           "region",
+          "attendance_mode",
           "total_fee_usd",
           "total_fee_inr",
           "payment_verified",

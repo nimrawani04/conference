@@ -530,6 +530,7 @@ function VerifyTicket() {
                 <DataRow label="Name" value={verificationData.fullName} />
                 <DataRow label="Email" value={verificationData.email} />
                 <DataRow label="Type" value={verificationData.participantType} />
+                <DataRow label="Attendance" value={verificationData.attendanceMode || "—"} />
                 <DataRow label="Affiliation" value={verificationData.affiliation} />
                 <DataRow label="Designation" value={verificationData.designation} />
                 {verificationData.paperId && (

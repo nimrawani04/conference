@@ -312,6 +312,7 @@ in AI`}
                     ["Affiliation", registrationData.affiliation],
                     ["Designation", registrationData.designation],
                     ["Registration Type", registrationData.participantType],
+                    ["Attendance Mode", registrationData.attendanceMode || "Offline"],
                     ["Registration ID", regId],
                   ].map(([label, value]) => (
                     <div key={label} style={{ borderBottom: "1px solid #ccc", paddingBottom: "7px" }}>
