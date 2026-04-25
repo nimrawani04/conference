@@ -2,8 +2,9 @@
 // https://m4milaad.github.io/ 
 
 import { useState, useEffect } from "react";
-import { ChevronDown, Search, User } from "lucide-react";
+import { ChevronDown, Moon, Search, Sun, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/themeContext";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,10 +12,11 @@ function Navbar() {
   const [yearOpen, setYearOpen] = useState(false);
   const [committeeOpen, setCommitteeOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const committeeItems = [
     { name: "Steering Committee", path: "/committee/SteeringCommitte" },
-    { name: "Organizing Committee", path: "/committee/organizingCommitte" },
+    { name: "Organizing Committee", path: "/committee/OrganizingCommitte" },
   ];
 
   const sessionsItems = [
@@ -83,6 +85,15 @@ function Navbar() {
                 className="bg-transparent border-none outline-none text-sm w-32 lg:w-48"
               />
             </div>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="theme-toggle inline-flex h-9 w-9 items-center justify-center rounded border border-gray-300 bg-white text-gray-700 shadow-sm transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1a56db]/40"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? <Sun size={18} aria-hidden /> : <Moon size={18} aria-hidden />}
+            </button>
             <Link
               to="/admin/login"
               className="flex items-center gap-1 text-sm text-gray-700 hover:text-blue-700 transition"
@@ -371,6 +382,15 @@ function Navbar() {
               <Link to="/contact" onClick={handleMenuToggle} className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
                 Contact
               </Link>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="theme-toggle mt-2 flex w-full items-center justify-between rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                <span>{isDark ? "Light mode" : "Dark mode"}</span>
+                {isDark ? <Sun size={16} aria-hidden /> : <Moon size={16} aria-hidden />}
+              </button>
             </div>
           </div>
         )}
