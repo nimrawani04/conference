@@ -162,7 +162,7 @@ function Home() {
                   <h3 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">Important Dates</h3>
                   <div className="mt-4 relative">
                     {/* Timeline line */}
-                    <div className="absolute left-[11px] top-0 bottom-0 w-[2px] bg-zinc-400 dark:bg-white/[0.15]"></div>
+                    <div className="absolute left-[11px] top-0 bottom-0 w-[2px] bg-zinc-400 dark:bg-golden"></div>
                     
                     <div className="space-y-3">
                       {/* Timeline Item 1 */}
