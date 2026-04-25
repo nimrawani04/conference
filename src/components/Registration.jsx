@@ -275,14 +275,28 @@ function Registration() {
         )}
 
         {!is2024 && (
-          <div className={`linear-card border-l-4 p-5 ${isLateFeeActive() ? 'border-red-500 dark:border-red-400 bg-red-50/50 dark:bg-red-950/10' : 'border-zinc-300 dark:border-zinc-600'}`}>
+          <div 
+            style={{ 
+              backgroundColor: isDark ? 'rgba(69, 10, 10, 0.4)' : '#fff1f1',
+              borderLeft: '4px solid #dc2626',
+              padding: '1.25rem',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}
+          >
             <div className="flex items-start gap-3">
-              <AlertCircle size={20} className={`flex-shrink-0 mt-0.5 ${isLateFeeActive() ? 'text-red-600 dark:text-red-400' : 'text-zinc-600 dark:text-zinc-400'}`} />
+              <AlertCircle size={20} style={{ color: '#dc2626', flexShrink: 0, marginTop: '0.125rem' }} />
               <div>
-                <p className="font-bold text-zinc-950 dark:text-zinc-100 mb-1.5 text-sm">Late Fee Policy</p>
-                <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                  20% late fee applies after May 5, 2026.
-                  {isLateFeeActive() && <span className="block mt-1 font-bold text-red-700 dark:text-red-400">⚠ Currently active!</span>}
+                <p style={{ fontWeight: 'bold', color: isDark ? '#fee2e2' : '#000', marginBottom: '0.375rem', fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Late Fee Policy
+                </p>
+                <p style={{ fontSize: '0.875rem', color: isDark ? '#f4f4f5' : '#18181b', lineHeight: '1.625' }}>
+                  A <span style={{ fontWeight: '900', color: '#dc2626', textDecoration: 'underline', textDecorationColor: '#fecaca', textUnderlineOffset: '4px' }}>20% late fee</span> applies after May 5, 2026. 
+                  Please complete your registration early to avoid additional charges.
+                  {isLateFeeActive() && (
+                    <span style={{ display: 'inline-block', marginTop: '0.5rem', fontWeight: 'bold', color: '#b91c1c', backgroundColor: '#fee2e2', padding: '0.25rem 0.5rem', borderRadius: '0.125rem' }}>
+                      ⚠ Currently active!
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
