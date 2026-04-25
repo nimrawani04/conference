@@ -8,7 +8,6 @@ import { startGatewayCheckout } from "./PaymentGateway";
 import { useTheme } from "../context/themeContext";
 import {
   Users,
-  Search,
   Settings,
   LogOut,
   TestTube,
@@ -600,7 +599,7 @@ export default function AdminDashboard() {
                 {filtered.length}
               </span>
             </h3>
-            <div className="relative w-full md:w-96">
+            <div className="w-full md:w-96">
               <input
                 type="text"
                 placeholder="Search registrations..."

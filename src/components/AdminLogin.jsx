@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PageLayout from "./PageLayout";
 import { invokeEdge } from "../lib/supabaseFunctions";
 import { setAdminToken } from "../lib/adminSession";
-import { Eye, EyeOff, Lock, User, ArrowLeft, Loader2 } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("");

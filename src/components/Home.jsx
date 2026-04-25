@@ -95,6 +95,7 @@ function Home() {
     { name: "Prof. Nishchal K Verma", role: "Keynote Speaker", org: "IIT Kanpur, India", image: "/nishchal.jpg" },
     { name: "A K Karunakar", role: "Invited Speaker", org: "Manipal University Jaipur, India", image: "/karunakar.jpg" },
     { name: "Maheshkumar H. Kolekar", role: "Invited Speaker", org: "IIT Patna, India", image: "/mahesh.jpg" },
+    { name: "Dr. Karan Nathwani", role: "Invited Speaker", org: "IIT Jammu, India", image: "/karan.jpg" },
   ];
 
   const displaySpeakers = is2024 ? speakers2024 : speakers2026;
@@ -325,7 +326,7 @@ function Home() {
         >
           <h2 className="text-xl font-bold text-zinc-950">Distinguished Speakers</h2>
 
-          <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className={`mt-4 grid gap-4 md:grid-cols-2 ${displaySpeakers.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
             {displaySpeakers.map((speaker, idx) => (
               <div key={idx} className="rounded-2xl border border-black/[0.06] bg-white/45 p-4 text-center transition hover:-translate-y-0.5 hover:bg-white/70">
                 <div className="mx-auto mb-3 h-24 w-24 overflow-hidden rounded-full border border-black/[0.06]">
