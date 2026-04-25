@@ -167,14 +167,16 @@ function Home() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-4 md:grid-cols-3">
-          {stats.map((stat) => (
-            <div key={stat.label} className="linear-card p-5">
-              <p className="terminal-label text-zinc-400">{stat.label}</p>
-              <p className="mt-2 text-3xl font-bold text-zinc-950 dark:text-zinc-100">{stat.value}</p>
-            </div>
-          ))}
-        </section>
+        {is2024 && (
+          <section className="mt-6 grid gap-4 md:grid-cols-3">
+            {stats.map((stat) => (
+              <div key={stat.label} className="linear-card p-5">
+                <p className="terminal-label text-zinc-400">{stat.label}</p>
+                <p className="mt-2 text-3xl font-bold text-zinc-950 dark:text-zinc-100">{stat.value}</p>
+              </div>
+            ))}
+          </section>
+        )}
 
         <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-4">
           <div className="lg:col-span-1 flex flex-col gap-6">
