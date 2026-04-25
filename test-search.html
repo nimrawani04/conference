@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Functionality Test</title>
+</head>
+<body>
+    <h1>Search Functionality Test Guide</h1>
+    
+    <h2>How to Test the Fixed Search Bar:</h2>
+    
+    <ol>
+        <li><strong>Open the application</strong> at <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
+        
+        <li><strong>Desktop Search (visible on medium+ screens):</strong>
+            <ul>
+                <li>Click on the search bar in the top navigation</li>
+                <li>Type any of these test queries:</li>
+                <ul>
+                    <li><code>speaker</code> - Should show keynote speakers</li>
+                    <li><code>committee</code> - Should show committee members</li>
+                    <li><code>workshop</code> - Should show workshop sessions</li>
+                    <li><code>registration</code> - Should show registration page</li>
+                    <li><code>about</code> - Should show about page</li>
+                    <li><code>contact</code> - Should show contact page</li>
+                </ul>
+                <li>Click on any result to navigate to that page</li>
+                <li>Press Enter to go to the first result</li>
+            </ul>
+        </li>
+        
+        <li><strong>Mobile Search (visible on small screens):</strong>
+            <ul>
+                <li>Click the hamburger menu (☰) on mobile/small screens</li>
+                <li>Use the search bar at the top of the mobile menu</li>
+                <li>Type a search query and press Enter</li>
+                <li>Should navigate to the first matching result</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <h2>What Was Fixed:</h2>
+    <ul>
+        <li>✅ Added missing import for <code>conferenceData</code></li>
+        <li>✅ Added missing <code>useNavigate</code> hook for proper routing</li>
+        <li>✅ Implemented proper search submit handlers for both desktop and mobile</li>
+        <li>✅ Enhanced search to include more data types (speakers, committees, sessions, pages)</li>
+        <li>✅ Added keyword-based page search (e.g., "registration", "contact", "about")</li>
+        <li>✅ Made mobile search functional with form submission</li>
+        <li>✅ Fixed React hooks dependencies warning</li>
+        <li>✅ Improved search to include bio and affiliation fields</li>
+    </ul>
+    
+    <h2>Search Categories:</h2>
+    <ul>
+        <li><strong>Speakers:</strong> Searches name, organization, and bio</li>
+        <li><strong>Themes:</strong> Conference tracks and themes</li>
+        <li><strong>Sessions:</strong> Workshops and special sessions</li>
+        <li><strong>Committees:</strong> Technical, Organizing, and Steering committees</li>
+        <li><strong>Pages:</strong> General conference pages (about, registration, contact, etc.)</li>
+    </ul>
+</body>
+</html>

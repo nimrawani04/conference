@@ -1,11 +1,12 @@
 // Edited by Milad Ajaz
 // https://m4milaad.github.io/
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ChevronDown, Menu, Moon, Search, Sun, User, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/themeContext";
 import { useYear } from "../context/yearContext";
+import conferenceData from "../content/conferenceData";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,10 +16,139 @@ function Navbar() {
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const { selectedYear, setSelectedYear } = useYear();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+
+  // Search function that can be reused for both desktop and mobile
+  const performSearch = useCallback((query) => {
+    if (!query.trim()) {
+      return [];
+    }
+
+    const q = query.toLowerCase();
+    const data = conferenceData[selectedYear];
+    const results = [];
+
+    if (!data) return results;
+
+    // Search Speakers
+    data.keynoteSpeakers?.forEach(s => {
+      if (s.name.toLowerCase().includes(q) || s.org.toLowerCase().includes(q) || s.bio?.toLowerCase().includes(q)) {
+        results.push({ type: "Speaker", title: s.name, subtitle: s.org, link: "/KeyNotes" });
+      }
+    });
+
+    // Search Themes
+    data.themes?.forEach(t => {
+      if (t.name.toLowerCase().includes(q)) {
+        results.push({ type: "Theme", title: t.name, subtitle: "Conference Track", link: "/" });
+      }
+    });
+
+    // Search Sessions/Workshops
+    const workshops = data.workshops?.items || data.workshops?.schedule || [];
+    workshops.forEach(w => {
+      const title = w.title || w.event || "";
+      const speaker = w.speaker || w.resourcePerson || "";
+      if (title.toLowerCase().includes(q) || speaker.toLowerCase().includes(q)) {
+        results.push({ type: "Session", title: title, subtitle: speaker, link: "/sessions/workshops" });
+      }
+    });
+
+    // Search Special Sessions
+    if (data.specialSessions) {
+      data.specialSessions.forEach(s => {
+        if (s.title?.toLowerCase().includes(q) || s.organizer?.toLowerCase().includes(q)) {
+          results.push({ type: "Special Session", title: s.title, subtitle: s.organizer, link: "/sessions/specialSessions" });
+        }
+      });
+    }
+
+    // Search Committees
+    if (data.technicalCommittee) {
+      data.technicalCommittee.forEach(m => {
+        if (m.name.toLowerCase().includes(q) || m.affiliation?.toLowerCase().includes(q)) {
+          results.push({ type: "Committee", title: m.name, subtitle: m.affiliation, link: "/committee/TechnicalCommitte" });
+        }
+      });
+    }
+
+    if (data.organizingCommittee) {
+      Object.values(data.organizingCommittee).forEach(val => {
+        if (Array.isArray(val)) {
+          val.forEach(m => {
+            if (m.name.toLowerCase().includes(q) || m.affiliation?.toLowerCase().includes(q)) {
+              results.push({ type: "Committee", title: m.name, subtitle: m.affiliation || "Organizing Committee", link: "/committee/OrganizingCommitte" });
+            }
+          });
+        }
+      });
+    }
+
+    if (data.steeringCommittee) {
+      data.steeringCommittee.forEach(m => {
+        if (m.name.toLowerCase().includes(q) || m.affiliation?.toLowerCase().includes(q)) {
+          results.push({ type: "Committee", title: m.name, subtitle: m.affiliation, link: "/committee/SteeringCommitte" });
+        }
+      });
+    }
+
+    // Search general pages based on keywords
+    const pageKeywords = {
+      "about": { link: "/about", title: "About Conference", subtitle: "Conference Information" },
+      "call for papers": { link: "/call-for-papers", title: "Call for Papers", subtitle: "Submit Your Research" },
+      "papers": { link: "/call-for-papers", title: "Call for Papers", subtitle: "Submit Your Research" },
+      "submission": { link: "/call-for-papers", title: "Call for Papers", subtitle: "Submit Your Research" },
+      "schedule": { link: "/schedule", title: "Conference Schedule", subtitle: "Event Timeline" },
+      "program": { link: "/schedule", title: "Conference Schedule", subtitle: "Event Timeline" },
+      "registration": { link: "/registration", title: "Registration", subtitle: "Register for Conference" },
+      "register": { link: "/registration", title: "Registration", subtitle: "Register for Conference" },
+      "contact": { link: "/contact", title: "Contact Us", subtitle: "Get in Touch" },
+      "sponsors": { link: "/sponsors", title: "Sponsors", subtitle: "Conference Sponsors" },
+      "venue": { link: "/about", title: "About Conference", subtitle: "Venue Information" },
+      "location": { link: "/about", title: "About Conference", subtitle: "Venue Information" }
+    };
+
+    Object.entries(pageKeywords).forEach(([keyword, page]) => {
+      if (keyword.includes(q) || q.includes(keyword)) {
+        results.push({ type: "Page", title: page.title, subtitle: page.subtitle, link: page.link });
+      }
+    });
+
+    return results.slice(0, 10);
+  }, [selectedYear]);
+
+  useEffect(() => {
+    setSearchResults(performSearch(searchQuery));
+  }, [searchQuery, performSearch]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchResults.length > 0) {
+      const firstResult = searchResults[0];
+      setSearchQuery("");
+      setIsSearchFocused(false);
+      navigate(firstResult.link);
+    }
+  };
+
+  const handleMobileSearchSubmit = (e) => {
+    e.preventDefault();
+    const results = performSearch(mobileSearchQuery);
+    if (results.length > 0) {
+      setMobileSearchQuery("");
+      handleMenuToggle();
+      navigate(results[0].link);
+    }
+  };
 
   const committeeItems = [
     { name: "Steering Committee", path: "/committee/SteeringCommitte" },
     { name: "Organizing Committee", path: "/committee/OrganizingCommitte" },
+    ...(selectedYear === 2024 ? [{ name: "Technical Committee", path: "/committee/TechnicalCommitte" }] : []),
   ];
 
   const sessionsItems = [
@@ -77,14 +207,54 @@ function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <label className="linear-search hidden h-8 items-center gap-2 border border-black/10 bg-white px-2.5 text-zinc-500 md:flex">
-            <Search size={14} aria-hidden />
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-28 border-0 bg-transparent text-xs text-zinc-800 outline-none placeholder:text-zinc-400 lg:w-40"
-            />
-          </label>
+          <div className="relative hidden md:block">
+            <form onSubmit={handleSearchSubmit}>
+              <label className={`linear-search flex h-8 items-center gap-2 border bg-white px-2.5 text-zinc-500 transition-all ${
+                isSearchFocused ? "border-[#5E6AD2] ring-2 ring-[#5E6AD2]/10 w-64" : "border-black/10 w-44 lg:w-52"
+              }`}>
+                <Search size={14} aria-hidden />
+                <input
+                  type="text"
+                  placeholder="Search conference..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                  className="w-full border-0 bg-transparent text-xs text-zinc-800 outline-none placeholder:text-zinc-400"
+                />
+              </label>
+            </form>
+
+            {isSearchFocused && searchResults.length > 0 && (
+              <div className="linear-dropdown absolute right-0 mt-2 w-72 overflow-hidden border border-black/[0.06] bg-white shadow-2xl">
+                <div className="px-3 py-2 border-b border-black/5 bg-zinc-50/50">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Search Results</p>
+                </div>
+                <ul className="py-1 max-h-80 overflow-y-auto">
+                  {searchResults.map((result, idx) => (
+                    <li key={idx}>
+                      <Link
+                        to={result.link}
+                        onClick={() => {
+                          setSearchQuery("");
+                          setIsSearchFocused(false);
+                        }}
+                        className="flex flex-col px-3 py-2 transition hover:bg-black/[0.04]"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-zinc-900 line-clamp-1">{result.title}</span>
+                          <span className="text-[9px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-500">
+                            {result.type}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-zinc-500 line-clamp-1 mt-0.5">{result.subtitle}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
           <button
             type="button"
             onClick={toggleTheme}
@@ -237,14 +407,18 @@ function Navbar() {
             }`}
           >
             <div className="space-y-1 px-6 py-3">
-              <label className="linear-search mb-3 flex h-8 items-center gap-2 border border-black/10 bg-white px-2.5 text-zinc-500 md:hidden">
-                <Search size={14} aria-hidden />
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="w-full border-0 bg-transparent text-xs text-zinc-800 outline-none placeholder:text-zinc-400"
-                />
-              </label>
+              <form onSubmit={handleMobileSearchSubmit} className="mb-3">
+                <label className="linear-search flex h-8 items-center gap-2 border border-black/10 bg-white px-2.5 text-zinc-500 md:hidden">
+                  <Search size={14} aria-hidden />
+                  <input
+                    type="text"
+                    placeholder="Search conference..."
+                    value={mobileSearchQuery}
+                    onChange={(e) => setMobileSearchQuery(e.target.value)}
+                    className="w-full border-0 bg-transparent text-xs text-zinc-800 outline-none placeholder:text-zinc-400"
+                  />
+                </label>
+              </form>
               <Link to="/" onClick={handleMenuToggle} className={mobileLinkClass}>Home</Link>
               <Link to="/about" onClick={handleMenuToggle} className={mobileLinkClass}>About</Link>
               <Link to="/call-for-papers" onClick={handleMenuToggle} className={mobileLinkClass}>Call For Papers</Link>

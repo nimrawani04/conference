@@ -230,6 +230,21 @@ body {
   backdrop-filter: blur(14px);
 }
 
+.linear-input {
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 0;
+  padding: 0.625rem 1rem;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.linear-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgb(201 168 106 / 0.1);
+}
+
 .event-hero {
   box-shadow: none;
 }
@@ -401,11 +416,11 @@ body {
 }
 
 :root:not([data-theme="dark"]) .text-zinc-900 {
-  color: #18181b !important;
+  color: #1a1a1e !important;
 }
 
 :root:not([data-theme="dark"]) .text-zinc-950 {
-  color: #09090b !important;
+  color: #121214 !important;
 }
 
 :root[data-theme="dark"] .text-blue-600,
@@ -456,7 +471,7 @@ body {
 :root[data-theme="dark"] input,
 :root[data-theme="dark"] textarea,
 :root[data-theme="dark"] select {
-  background-color: #111318;
+  background-color: #1c1c1c;
   color: var(--text-main);
   border-color: var(--border-soft);
 }

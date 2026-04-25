@@ -5,20 +5,23 @@ import RegistrationTicket from "./RegistrationTicket";
 import { invokeEdge } from "../lib/supabaseFunctions";
 import { clearAdminToken, getAdminToken } from "../lib/adminSession";
 import { startGatewayCheckout } from "./PaymentGateway";
-import { 
-  Users, 
-  Search, 
-  Settings, 
-  LogOut, 
-  TestTube, 
-  QrCode, 
-  Edit3, 
-  Eye, 
+import { useTheme } from "../context/themeContext";
+import {
+  Users,
+  Search,
+  Settings,
+  LogOut,
+  TestTube,
+  QrCode,
+  Edit3,
+  Eye,
   Trash2,
   CheckCircle,
   Clock,
   AlertCircle,
-  Database
+  Database,
+  X,
+  FileText
 } from "lucide-react";
 
 function formatDate(iso) {
@@ -68,6 +71,7 @@ function rowToTicketData(r) {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const [status, setStatus] = useState("checking");
   const [username, setUsername] = useState("");
   const [regs, setRegs] = useState([]);
@@ -137,6 +141,14 @@ export default function AdminDashboard() {
       cancelled = true;
     };
   }, [status]);
+
+  const stats = useMemo(() => {
+    const total = regs.length;
+    const paid = regs.filter(r => r.payment_verified).length;
+    const pending = total - paid;
+    const revenueINR = regs.reduce((acc, r) => acc + (r.payment_verified ? (Number(r.total_fee_inr) || 0) : 0), 0);
+    return { total, paid, pending, revenueINR };
+  }, [regs]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -313,232 +325,187 @@ export default function AdminDashboard() {
   if (status === "checking") {
     return (
       <PageLayout title="Admin" subtitle="">
-        <p className="text-center text-gray-600 py-12">Verifying session…</p>
+        <div className="flex flex-col items-center justify-center py-24 space-y-4">
+          <Database size={48} className="text-[#5E6AD2] animate-pulse" />
+          <p className="text-zinc-500 font-medium">Verifying secure session…</p>
+        </div>
       </PageLayout>
     );
   }
 
   return (
-    <PageLayout title="Admin" subtitle="2AI Conference">
+    <PageLayout title="Admin Dashboard" subtitle="Manage conference registrations and payments">
       {ticketData && (
         <RegistrationTicket registrationData={ticketData} onClose={() => setTicketData(null)} />
       )}
+
+      {/* Edit Modal */}
       {editForm && (
-        <div
-          className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="admin-edit-title"
-        >
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/50 border-0 cursor-default"
-            aria-label="Close edit dialog"
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm"
             onClick={() => !editSaving && setEditForm(null)}
           />
-          <div className="relative bg-white rounded-t-2xl sm:rounded-xl shadow-xl border border-gray-200 w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3 shrink-0">
-              <h2 id="admin-edit-title" className="text-lg font-bold text-gray-900">
-                Edit registration
-              </h2>
+          <div className="relative linear-card w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col p-0 border-0 shadow-2xl animate-zoomFadeIn">
+            <div className="px-6 py-4 border-b border-[var(--border-soft)] flex items-center justify-between bg-[var(--surface-soft)]/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[var(--brand)]/10 flex items-center justify-center">
+                  <Edit3 size={20} className="text-[var(--brand)]" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-[var(--text-main)]">Edit Registration</h2>
+                  <p className="text-xs text-[var(--text-soft)] font-mono">{editForm.registration_id}</p>
+                </div>
+              </div>
               <button
                 type="button"
                 disabled={editSaving}
                 onClick={() => setEditForm(null)}
-                className="text-gray-500 hover:text-gray-800 p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                aria-label="Close"
+                className="p-2 rounded-lg hover:bg-[var(--surface-muted)] transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X size={20} className="text-[var(--text-soft)]" />
               </button>
             </div>
-            <div className="overflow-y-auto px-5 py-4 space-y-4">
-              <p className="text-xs text-gray-500 font-mono">
-                ID: <span className="text-[#2c5aa0]">{editForm.registration_id}</span>
-              </p>
-              <div className="grid sm:grid-cols-2 gap-3">
-                <label className="block sm:col-span-2">
-                  <span className="text-xs font-semibold text-gray-600">Full name *</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.full_name}
-                    onChange={(e) => setEditForm((f) => ({ ...f, full_name: e.target.value }))}
-                  />
-                </label>
-                <label className="block sm:col-span-2">
-                  <span className="text-xs font-semibold text-gray-600">Affiliation *</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.affiliation}
-                    onChange={(e) => setEditForm((f) => ({ ...f, affiliation: e.target.value }))}
-                  />
-                </label>
-                <label className="block sm:col-span-2">
-                  <span className="text-xs font-semibold text-gray-600">Email</span>
-                  <input
-                    type="email"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.email}
-                    onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Designation</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.designation}
-                    onChange={(e) => setEditForm((f) => ({ ...f, designation: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Country</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.country}
-                    onChange={(e) => setEditForm((f) => ({ ...f, country: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Contact number</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.contact_number}
-                    onChange={(e) => setEditForm((f) => ({ ...f, contact_number: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Participant type</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.participant_type}
-                    onChange={(e) => setEditForm((f) => ({ ...f, participant_type: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Paper ID</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.paper_id}
-                    onChange={(e) => setEditForm((f) => ({ ...f, paper_id: e.target.value }))}
-                  />
-                </label>
-                <label className="block sm:col-span-2">
-                  <span className="text-xs font-semibold text-gray-600">Paper title</span>
-                  <textarea
-                    rows={2}
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none resize-y"
-                    value={editForm.paper_title}
-                    onChange={(e) => setEditForm((f) => ({ ...f, paper_title: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Number of authors</span>
-                  <input
-                    inputMode="numeric"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.num_authors}
-                    onChange={(e) => setEditForm((f) => ({ ...f, num_authors: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Sub-category</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.sub_category}
-                    onChange={(e) => setEditForm((f) => ({ ...f, sub_category: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Region</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.region}
-                    onChange={(e) => setEditForm((f) => ({ ...f, region: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Attend workshop</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.attend_workshop}
-                    onChange={(e) => setEditForm((f) => ({ ...f, attend_workshop: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Attendance mode</span>
-                  <select
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.attendance_mode}
-                    onChange={(e) => setEditForm((f) => ({ ...f, attendance_mode: e.target.value }))}
-                  >
-                    <option value="">Select mode</option>
-                    <option value="Offline">Offline</option>
-                    <option value="Online">Online</option>
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Fee (USD)</span>
-                  <input
-                    inputMode="decimal"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.total_fee_usd}
-                    onChange={(e) => setEditForm((f) => ({ ...f, total_fee_usd: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Fee (INR)</span>
-                  <input
-                    inputMode="decimal"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.total_fee_inr}
-                    onChange={(e) => setEditForm((f) => ({ ...f, total_fee_inr: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Mode of payment</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.mode_of_payment}
-                    onChange={(e) => setEditForm((f) => ({ ...f, mode_of_payment: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Transaction ID</span>
-                  <input
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.transaction_id}
-                    onChange={(e) => setEditForm((f) => ({ ...f, transaction_id: e.target.value }))}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-semibold text-gray-600">Date of payment</span>
-                  <input
-                    type="date"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-                    value={editForm.date_of_payment}
-                    onChange={(e) => setEditForm((f) => ({ ...f, date_of_payment: e.target.value }))}
-                  />
-                </label>
-                <label className="flex items-center gap-2 sm:col-span-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-[#2c5aa0] focus:ring-[#2c5aa0]"
-                    checked={editForm.payment_verified}
-                    onChange={(e) =>
-                      setEditForm((f) => ({ ...f, payment_verified: e.target.checked }))
-                    }
-                  />
-                  <span className="text-sm font-medium text-gray-800">Payment verified</span>
-                </label>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-4 sm:col-span-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-soft)]">Basic Information</h4>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="text-xs font-bold text-[var(--text-soft)] ml-1">Full Name</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.full_name}
+                        onChange={(e) => setEditForm((f) => ({ ...f, full_name: e.target.value }))}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-[var(--text-soft)] ml-1">Email Address</span>
+                      <input
+                        type="email"
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.email}
+                        onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-4 sm:col-span-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 border-t border-black/[0.05] dark:border-white/5 pt-4">Professional Details</h4>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <label className="block sm:col-span-2">
+                      <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 ml-1">Affiliation</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.affiliation}
+                        onChange={(e) => setEditForm((f) => ({ ...f, affiliation: e.target.value }))}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 ml-1">Designation</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.designation}
+                        onChange={(e) => setEditForm((f) => ({ ...f, designation: e.target.value }))}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 ml-1">Country</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.country}
+                        onChange={(e) => setEditForm((f) => ({ ...f, country: e.target.value }))}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-4 sm:col-span-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 border-t border-black/[0.05] dark:border-white/5 pt-4">Conference Options</h4>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 ml-1">Participant Type</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.participant_type}
+                        onChange={(e) => setEditForm((f) => ({ ...f, participant_type: e.target.value }))}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 ml-1">Attendance Mode</span>
+                      <select
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.attendance_mode}
+                        onChange={(e) => setEditForm((f) => ({ ...f, attendance_mode: e.target.value }))}
+                      >
+                        <option value="">Select mode</option>
+                        <option value="Offline">Offline</option>
+                        <option value="Online">Online</option>
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600 dark:text-zinc-400 ml-1">Paper ID</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.paper_id}
+                        onChange={(e) => setEditForm((f) => ({ ...f, paper_id: e.target.value }))}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-[var(--text-soft)] ml-1">Workshop</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.attend_workshop}
+                        onChange={(e) => setEditForm((f) => ({ ...f, attend_workshop: e.target.value }))}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-4 sm:col-span-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-soft)] border-t border-[var(--border-soft)] pt-4">Payment & Verification</h4>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="text-xs font-bold text-[var(--text-soft)] ml-1">Fee (INR)</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.total_fee_inr}
+                        onChange={(e) => setEditForm((f) => ({ ...f, total_fee_inr: e.target.value }))}
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-bold text-[var(--text-soft)] ml-1">Transaction ID</span>
+                      <input
+                        className="mt-1.5 w-full linear-input"
+                        value={editForm.transaction_id}
+                        onChange={(e) => setEditForm((f) => ({ ...f, transaction_id: e.target.value }))}
+                      />
+                    </label>
+                    <label className="flex items-center gap-3 p-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-soft)]/50 cursor-pointer sm:col-span-2 transition-all hover:bg-[var(--surface-soft)]">
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 rounded border-zinc-300 text-[var(--brand)] focus:ring-[var(--brand)]"
+                        checked={editForm.payment_verified}
+                        onChange={(e) => setEditForm((f) => ({ ...f, payment_verified: e.target.checked }))}
+                      />
+                      <div>
+                        <span className="block text-sm font-bold text-[var(--text-main)]">Payment Verified</span>
+                        <span className="text-xs text-[var(--text-soft)]">Manually confirm this registration is paid</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="px-5 py-4 border-t border-gray-100 flex flex-wrap justify-end gap-2 shrink-0 bg-gray-50/80">
+
+            <div className="px-6 py-4 border-t border-[var(--border-soft)] flex justify-end gap-3 bg-[var(--surface-soft)]/50">
               <button
                 type="button"
                 disabled={editSaving}
                 onClick={() => setEditForm(null)}
-                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-800 font-medium text-sm hover:bg-white disabled:opacity-50"
+                className="px-4 py-2 text-sm font-bold text-[var(--text-soft)] hover:text-[var(--text-main)] transition-colors"
               >
                 Cancel
               </button>
@@ -546,143 +513,209 @@ export default function AdminDashboard() {
                 type="button"
                 disabled={editSaving}
                 onClick={saveEdit}
-                className="px-4 py-2 rounded-lg bg-[#2c5aa0] text-white font-medium text-sm hover:bg-[#234a85] disabled:opacity-50"
+                className="linear-primary px-6 py-2 text-sm"
               >
-                {editSaving ? "Saving…" : "Save changes"}
+                {editSaving ? "Saving Changes…" : "Save Changes"}
               </button>
             </div>
           </div>
         </div>
       )}
-      <div className="max-w-7xl mx-auto space-y-8 px-2">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-gray-700">
-              Signed in as{" "}
-              <span className="font-mono font-semibold text-[#2c5aa0]">{username || "admin"}</span>
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              {regsLoading ? "Loading registrations…" : `${regs.length} registration(s) loaded`}
-            </p>
+
+      {/* Main Dashboard Layout */}
+      <div className="space-y-6">
+        {/* Header Actions & Stats */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="linear-card p-4 flex flex-col justify-between">
+              <div className="flex items-center gap-2 text-[var(--text-soft)] mb-2">
+                <Users size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Total</span>
+              </div>
+              <p className="text-2xl font-bold text-[var(--text-main)]">{stats.total}</p>
+            </div>
+            <div className="linear-card p-4 flex flex-col justify-between border-l-4 border-green-500">
+              <div className="flex items-center gap-2 text-green-600 mb-2">
+                <CheckCircle size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Paid</span>
+              </div>
+              <p className="text-2xl font-bold text-[var(--text-main)]">{stats.paid}</p>
+            </div>
+            <div className="linear-card p-4 flex flex-col justify-between border-l-4 border-amber-500">
+              <div className="flex items-center gap-2 text-amber-600 mb-2">
+                <Clock size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Pending</span>
+              </div>
+              <p className="text-2xl font-bold text-[var(--text-main)]">{stats.pending}</p>
+            </div>
+            <div className="linear-card p-4 flex flex-col justify-between">
+              <div className="flex items-center gap-2 text-[var(--brand)] mb-2">
+                <Database size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-widest">Revenue</span>
+              </div>
+              <p className="text-lg font-bold text-[var(--text-main)] truncate">₹{stats.revenueINR.toLocaleString()}</p>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={testPayBusy}
-              onClick={startOneRupeeTestPayment}
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 disabled:opacity-50 transition text-sm"
-            >
-              {testPayBusy ? "Starting test payment…" : "Test payment (₹1)"}
-            </button>
-            <Link
-              to="/verify-ticket"
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-[#2c5aa0] text-white font-medium hover:bg-[#234a85] transition text-sm"
-            >
-              Verify ticket / QR
-            </Link>
-            <button
-              type="button"
-              onClick={logout}
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-gray-300 text-gray-800 font-medium hover:bg-gray-50 transition text-sm"
-            >
-              Log out
-            </button>
+
+          <div className="linear-card p-4 flex flex-col justify-center gap-3">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-[var(--surface-soft)] flex items-center justify-center">
+                  <Settings size={14} className="text-[var(--text-soft)]" />
+                </div>
+                <span className="text-xs font-bold text-[var(--text-main)]">{username || "Admin"}</span>
+              </div>
+              <button
+                onClick={logout}
+                className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
+              >
+                <LogOut size={14} /> Log out
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                disabled={testPayBusy}
+                onClick={startOneRupeeTestPayment}
+                className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-[11px] font-bold hover:bg-emerald-100 transition-colors disabled:opacity-50"
+              >
+                <TestTube size={14} /> Test ₹1
+              </button>
+              <Link
+                to="/verify-ticket"
+                className="flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-[#5E6AD2]/20 bg-[#5E6AD2]/5 text-[#5E6AD2] text-[11px] font-bold hover:bg-[#5E6AD2]/10 transition-colors"
+              >
+                <QrCode size={14} /> Verify QR
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-            <h2 className="text-lg font-bold text-gray-800">All registrations</h2>
-            <input
-              type="search"
-              placeholder="Filter by name, ID, email, paper ID…"
-              className="w-full sm:max-w-md border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+        {/* Search & Table Area */}
+        <div className="linear-card overflow-hidden p-0">
+          <div className="px-6 py-5 border-b border-[var(--border-soft)] flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--brand)]/5">
+            <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2">
+              Registrations
+              <span className="text-xs font-normal text-[var(--brand)] bg-[var(--brand)]/10 px-2 py-0.5 rounded-full">
+                {filtered.length}
+              </span>
+            </h3>
+            <div className="relative w-full md:w-96">
+              <input
+                type="text"
+                placeholder="Search registrations..."
+                className="w-full px-4 py-2 linear-input bg-[var(--surface)]/80 border-[var(--brand)]/20 text-sm focus:ring-2 focus:ring-[var(--brand)]/10 transition-all placeholder:text-[var(--text-soft)]/50"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
           </div>
 
-          {regsError && (
-            <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-100">{regsError}</div>
-          )}
-          {actionMsg && (
-            <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-100">{actionMsg}</div>
+          {(regsError || actionMsg) && (
+            <div className="px-6 py-3 bg-red-50 dark:bg-red-950/20 border-b border-red-100 dark:border-red-900/30 flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+              <AlertCircle size={16} />
+              {regsError || actionMsg}
+            </div>
           )}
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left min-w-[1024px]">
-              <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-200">
-                <tr>
-                  <th className="px-3 py-3 whitespace-nowrap">Registration ID</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Name</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Email</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Type</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Attendance</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Fee</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Paid</th>
-                  <th className="px-3 py-3 whitespace-nowrap">Registered</th>
-                  <th className="px-3 py-3 whitespace-nowrap text-right">Actions</th>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[var(--brand)]/10 text-[11px] font-bold uppercase tracking-wider text-[var(--brand)]">
+                  <th className="px-6 py-4">Participant</th>
+                  <th className="px-6 py-4">Details</th>
+                  <th className="px-6 py-4">Amount</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Registration Date</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.length === 0 && !regsLoading ? (
+              <tbody className="divide-y divide-black/[0.05] dark:divide-white/5">
+                {regsLoading ? (
                   <tr>
-                    <td colSpan={9} className="px-3 py-8 text-center text-gray-500">
-                      {regs.length === 0 ? "No registrations yet." : "No rows match your filter."}
+                    <td colSpan={6} className="px-6 py-20 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <Database className="text-[#5E6AD2] animate-spin" size={32} />
+                        <p className="text-sm text-zinc-500">Fetching registrations...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-20 text-center text-zinc-500 italic text-sm">
+                      No registrations found matching your search.
                     </td>
                   </tr>
                 ) : (
                   filtered.map((r) => (
-                    <tr key={r.registration_id} className="hover:bg-gray-50/80">
-                      <td className="px-3 py-2.5 font-mono text-xs text-[#2c5aa0]">
-                        {r.registration_id}
+                    <tr key={r.registration_id} className="group hover:bg-[var(--surface-soft)] transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-[var(--text-main)]">{r.full_name}</span>
+                          <span className="text-xs text-[var(--text-soft)] truncate max-w-[180px]">{r.email}</span>
+                          <span className="text-[10px] font-mono text-[var(--brand)] mt-1">{r.registration_id}</span>
+                        </div>
                       </td>
-                      <td className="px-3 py-2.5 text-gray-900">{r.full_name}</td>
-                      <td className="px-3 py-2.5 text-gray-600 max-w-[200px] truncate" title={r.email}>
-                        {r.email}
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="px-1.5 py-0.5 rounded bg-[var(--surface-soft)] text-[10px] font-bold text-[var(--text-muted)]">
+                              {r.participant_type || "Participant"}
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[10px] font-bold text-blue-600">
+                              {r.attendance_mode || "Mode N/A"}
+                            </span>
+                          </div>
+                          {r.paper_id && (
+                            <span className="text-[11px] text-[var(--text-soft)] flex items-center gap-1">
+                              <FileText size={10} /> {r.paper_id}
+                            </span>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
-                        {r.participant_type || "—"}
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-[var(--text-main)]">₹{(Number(r.total_fee_inr) || 0).toLocaleString()}</span>
+                          <span className="text-[10px] text-[var(--text-soft)]">${Number(r.total_fee_usd) || 0}</span>
+                        </div>
                       </td>
-                      <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
-                        {r.attendance_mode || "—"}
-                      </td>
-                      <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">
-                        {formatFee(r.total_fee_usd, r.total_fee_inr)}
-                      </td>
-                      <td className="px-3 py-2.5 whitespace-nowrap">
+                      <td className="px-6 py-4">
                         {r.payment_verified ? (
-                          <span className="text-green-700 font-medium">Yes</span>
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/10 text-green-700 text-[10px] font-bold">
+                            <CheckCircle size={10} /> Paid
+                          </span>
                         ) : (
-                          <span className="text-amber-700">Pending</span>
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 text-amber-700 text-[10px] font-bold">
+                            <Clock size={10} /> Pending
+                          </span>
                         )}
                       </td>
-                      <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap text-xs">
-                        {formatDate(r.created_at)}
+                      <td className="px-6 py-4">
+                        <span className="text-xs text-[var(--text-soft)]">{formatDate(r.created_at)}</span>
                       </td>
-                      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-                        <div className="inline-flex flex-wrap items-center justify-end gap-1.5">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <button
-                            type="button"
+                            title="Edit"
                             onClick={() => openEdit(r)}
-                            className="px-2.5 py-1 rounded-md text-xs font-medium border border-gray-300 text-gray-800 bg-white hover:bg-gray-50 transition"
+                            className="p-2 rounded-lg text-zinc-400 hover:text-[#5E6AD2] hover:bg-[#5E6AD2]/10 transition-all"
                           >
-                            Edit
+                            <Edit3 size={16} />
                           </button>
                           <button
-                            type="button"
+                            title="View Ticket"
                             onClick={() => setTicketData(rowToTicketData(r))}
-                            className="px-2.5 py-1 rounded-md text-xs font-medium bg-[#2c5aa0] text-white hover:bg-[#234a85] transition"
+                            className="p-2 rounded-lg text-zinc-400 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all"
                           >
-                            Show ticket
+                            <Eye size={16} />
                           </button>
                           <button
-                            type="button"
+                            title="Delete"
                             disabled={deleteBusyId === r.registration_id}
                             onClick={() => deleteRegistration(r)}
-                            className="px-2.5 py-1 rounded-md text-xs font-medium border border-red-200 text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition"
+                            className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-all disabled:opacity-30"
                           >
-                            {deleteBusyId === r.registration_id ? "Deleting…" : "Delete"}
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
@@ -693,12 +726,6 @@ export default function AdminDashboard() {
             </table>
           </div>
         </div>
-
-        <p className="text-center text-sm text-gray-500">
-          <Link to="/" className="hover:text-[#2c5aa0]">
-            ← Home
-          </Link>
-        </p>
       </div>
     </PageLayout>
   );

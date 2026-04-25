@@ -11,6 +11,7 @@ import Contact from "./components/Contact";
 import CallForPapers from "./components/CallForPapers";
 import SteeringCommitte from "./components/SteeringCommitte";
 import OrganizingCommitte from "./components/OrganizingCommitte";
+import TechnicalCommittee from "./components/TechnicalCommitte";
 import SpecialSessions from "./components/SpecialSessions"
 import Sponsors from "./components/Sponsors";
 import VerifyTicket from "./components/VerifyTicket";
@@ -43,6 +44,7 @@ function App() {
         <Route path="/call-for-papers" element={<CallForPapers />} />
         <Route path="/committee/SteeringCommitte" element={<SteeringCommitte />} />
         <Route path="/committee/OrganizingCommitte" element={<OrganizingCommitte />} />
+        <Route path="/committee/TechnicalCommitte" element={<TechnicalCommittee />} />
         <Route path="/sessions/workshops" element={<Workshops />} />
         <Route path="/sessions/specialSessions" element={<SpecialSessions />} />
         <Route path="/KeyNotes" element={<KeyNotes />} />
