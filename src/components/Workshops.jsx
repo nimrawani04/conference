@@ -14,34 +14,46 @@ function Workshops() {
   if (is2024 && data.workshops?.available) {
     return (
       <PageLayout 
-        title="Conference Workshops"
-        subtitle={`Workshops conducted during the 2024 International Conference on Applied AI`}
+        title="Workshops & Expert Talks"
+        subtitle="Full schedule for technical sessions conducted during 2AI-2024 (Online Mode)"
       >
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {data.workshops.items.map((ws, idx) => (
-            <div key={idx} className="linear-card p-6 hover:shadow-md transition hover:-translate-y-0.5">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#5E6AD2]/10 dark:bg-[#c9a86a]/10 flex items-center justify-center">
-                  <Wrench size={20} className="text-[#5E6AD2] dark:text-[#c9a86a]" />
-                </div>
-                <h3 className="text-lg font-bold text-zinc-950 dark:text-zinc-100">{ws.title}</h3>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-400">
-                  <User size={14} className="text-[#5E6AD2] dark:text-[#c9a86a]" />
-                  <span>{ws.speaker}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-400">
-                  <Calendar size={14} className="text-[#5E6AD2] dark:text-[#c9a86a]" />
-                  <span>{ws.date}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-4 border-b">Day / Date</th>
+                  <th className="px-6 py-4 border-b">Time</th>
+                  <th className="px-6 py-4 border-b">Event</th>
+                  <th className="px-6 py-4 border-b">Resource Person</th>
+                  <th className="px-6 py-4 border-b">Coordinator</th>
+                  <th className="px-6 py-4 border-b">Moderator</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {data.workshops.items.map((ws, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/50 transition-colors text-sm">
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-gray-800">{ws.day}</div>
+                      <div className="text-xs text-gray-500">{ws.date}</div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{ws.time}</td>
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-[#c9a86a]">{ws.title}</div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-700">{ws.speaker}</td>
+                    <td className="px-6 py-4 text-gray-600">{ws.coordinator}</td>
+                    <td className="px-6 py-4 text-gray-600">{ws.moderator}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </PageLayout>
     );
   }
+
 
   return (
     <PageLayout 

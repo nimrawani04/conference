@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PageLayout from "./PageLayout";
 import { fetchCommitteeByType } from "../lib/committeeData";
 import { useYear } from "../context/yearContext";
+import conferenceData from "../content/conferenceData";
 
 function SteeringCommittee() {
   const [committee, setCommittee] = useState({});
@@ -12,6 +13,16 @@ function SteeringCommittee() {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Check if we have hardcoded data for this year first
+    const yearData = conferenceData[selectedYear];
+    if (yearData?.committee?.steeringCommittee) {
+      const members = yearData.committee.steeringCommittee;
+      const grouped = { "Steering Committee Members": members };
+      setCommittee(grouped);
+      return;
+    }
+
     (async () => {
       try {
         const filtered = await fetchCommitteeByType("steering committee");
@@ -29,7 +40,7 @@ function SteeringCommittee() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [selectedYear]);
 
   return (
     <PageLayout 
@@ -53,7 +64,10 @@ function SteeringCommittee() {
                     <p className="text-sm text-gray-600 mt-1">{member.designation}</p>
                   )}
                   {member.affiliation && (
-                    <p className="text-sm text-blue-600 mt-1">{member.affiliation}</p>
+                    <p className="text-sm text-blue-600 mt-1">
+                      {member.affiliation}
+                      {member.country && `, ${member.country}`}
+                    </p>
                   )}
                 </div>
               ))}

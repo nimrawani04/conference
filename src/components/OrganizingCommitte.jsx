@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PageLayout from "./PageLayout";
 import { fetchCommitteeByType } from "../lib/committeeData";
 import { useYear } from "../context/yearContext";
+import conferenceData from "../content/conferenceData";
 
 function OrganizingCommittee() {
   const [committee, setCommittee] = useState({});
@@ -12,6 +13,14 @@ function OrganizingCommittee() {
 
   useEffect(() => {
     let cancelled = false;
+
+    // Check if we have hardcoded data for this year first
+    const yearData = conferenceData[selectedYear];
+    if (yearData?.committee?.organizingCommittee) {
+      setCommittee(yearData.committee.organizingCommittee);
+      return;
+    }
+
     (async () => {
       try {
         const filtered = await fetchCommitteeByType("organizing committee");
@@ -29,7 +38,7 @@ function OrganizingCommittee() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [selectedYear]);
 
   return (
     <PageLayout 

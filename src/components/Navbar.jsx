@@ -19,6 +19,7 @@ function Navbar() {
   const committeeItems = [
     { name: "Steering Committee", path: "/committee/SteeringCommitte" },
     { name: "Organizing Committee", path: "/committee/OrganizingCommitte" },
+    ...(selectedYear === 2024 ? [{ name: "Technical Committee", path: "/committee/TechnicalCommitte" }] : []),
   ];
 
   const sessionsItems = [

@@ -15,7 +15,86 @@ function CallForPapers() {
   const meta = data?.meta || conferenceData[2026].meta;
   const pdfUrl = `${import.meta.env.BASE_URL}copyright.pdf`;
   const cmtUrl = meta.cmt;
-  const sections = [
+  const sections = is2024 && data.submissionDetails ? [
+    {
+      id: 1,
+      title: "Manuscript Preparation",
+      icon: <FileText className="w-6 h-6 text-[#E8A020]" />,
+      content: (
+        <div className="relative pl-6">
+          <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-[#c9a86a] dark:bg-[#c9a86a]"></div>
+          <ul className="space-y-3 text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">
+            {data.submissionDetails.manuscriptRules.map((rule, i) => (
+              <li key={i} className="relative flex gap-3">
+                <div className="flex-shrink-0 w-4 h-4 rounded-full bg-[#E8A020] border-2 border-black dark:border-zinc-900 mt-0.5 z-10 shadow-sm"></div>
+                <span>{rule}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: 2,
+      title: "Paper Length & Format",
+      icon: <FileDown className="w-6 h-6 text-[#5E6AD2]" />,
+      content: (
+        <div className="relative pl-6">
+          <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-[#c9a86a] dark:bg-[#c9a86a]"></div>
+          <div className="space-y-4 text-zinc-700 dark:text-zinc-300 text-sm">
+            <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-white/5 p-3 rounded-lg border border-black/5 dark:border-white/10">
+              <div>
+                <p className="text-[10px] font-bold uppercase text-zinc-500 mb-1">Full Paper</p>
+                <p className="font-bold text-[#5E6AD2] dark:text-[#c9a86a]">{data.submissionDetails.paperLength.full}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase text-zinc-500 mb-1">Short Paper</p>
+                <p className="font-bold text-[#5E6AD2] dark:text-[#c9a86a]">{data.submissionDetails.paperLength.short}</p>
+              </div>
+            </div>
+            <p className="text-xs italic text-zinc-500">{data.submissionDetails.paperLength.note}</p>
+            <p className="text-xs font-semibold">Max File Size: {data.submissionDetails.paperLength.maxSize}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 3,
+      title: "Copyright & Publication",
+      icon: <Shield className="w-6 h-6 text-[#1A5C38]" />,
+      content: (
+        <div className="relative pl-6">
+          <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-[#c9a86a] dark:bg-[#c9a86a]"></div>
+          <ul className="space-y-3 text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">
+            {data.submissionDetails.copyrightRules.map((rule, i) => (
+              <li key={i} className="relative flex gap-3">
+                <div className="flex-shrink-0 w-4 h-4 rounded-full bg-[#1A5C38] border-2 border-black dark:border-zinc-900 mt-0.5 z-10 shadow-sm"></div>
+                <span>{rule}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: 4,
+      title: "Presentation Guidelines",
+      icon: <Presentation className="w-6 h-6 text-[#7B4FFF]" />,
+      content: (
+        <div className="relative pl-6">
+          <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-[#c9a86a] dark:bg-[#c9a86a]"></div>
+          <ul className="space-y-3 text-zinc-700 dark:text-zinc-300 text-sm leading-relaxed">
+            {data.submissionDetails.presentationRules.map((rule, i) => (
+              <li key={i} className="relative flex gap-3">
+                <div className="flex-shrink-0 w-4 h-4 rounded-full bg-[#7B4FFF] border-2 border-black dark:border-zinc-900 mt-0.5 z-10 shadow-sm"></div>
+                <span>{rule}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ),
+    }
+  ] : [
     {
       id: 1,
       title: "Paper Submission Instructions",
@@ -163,6 +242,7 @@ function CallForPapers() {
       ),
     }
   ];
+
 
   return (
     <PageLayout 

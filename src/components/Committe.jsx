@@ -1,9 +1,6 @@
-// Edited by Milad Ajaz 
-// https://m4milaad.github.io/ 
-
 import { Link } from "react-router-dom";
 import PageLayout from "./PageLayout";
-import { Users, Briefcase } from "lucide-react";
+import { Users, Briefcase, Database } from "lucide-react";
 
 function Committee() {
   const committees = [
@@ -18,6 +15,12 @@ function Committee() {
       path: "/committee/organizingCommitte",
       description: "Handles logistics and event management",
       icon: <Briefcase size={32} className="text-green-600" />
+    },
+    {
+      name: "Technical Program Committee",
+      path: "/committee/TechnicalCommitte",
+      description: "Academic experts overseeing the peer-review process",
+      icon: <Database size={32} className="text-amber-600" />
     }
   ];
 
@@ -26,7 +29,7 @@ function Committee() {
       title="Committees"
       subtitle="Meet the teams organizing the 2026 International Conference on Applied Artificial Intelligence"
     >
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {committees.map((committee, idx) => (
           <Link 
             key={idx}

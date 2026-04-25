@@ -48,12 +48,11 @@ export default function AdminLogin() {
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 ml-1">Username</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input
                   type="text"
                   autoComplete="username"
                   placeholder="Enter admin username"
-                  className="w-full linear-input pl-10"
+                  className="w-full linear-input px-4"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -64,12 +63,11 @@ export default function AdminLogin() {
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 ml-1">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
                 <input
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full linear-input pl-10 pr-12"
+                  className="w-full linear-input px-4 pr-12"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

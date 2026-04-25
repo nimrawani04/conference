@@ -353,14 +353,34 @@ function Home() {
           ref={sponsorsRef}
           className={`linear-card mt-6 p-6 transition-all duration-700 ${sponsorsInView ? "opacity-100" : "opacity-0"}`}
         >
-          <h2 className="text-xl font-bold text-zinc-950">Sponsors</h2>
-          <div className="flex justify-center py-8">
-            <p className="flex items-center gap-2 text-center text-base text-zinc-500">
-              <Sparkles size={20} className="text-[#5E6AD2]" />
-              {is2024 ? "Sponsorship details for 2AI-2024" : "Information will be available shortly"}
-              <Sparkles size={20} className="text-[#5E6AD2]" />
-            </p>
-          </div>
+          <h2 className="text-xl font-bold text-zinc-950">Sponsors & Partners</h2>
+          
+          {is2024 && data.sponsorship ? (
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {data.sponsorship.tiers.map((tier, idx) => (
+                <div key={idx} className="flex flex-col items-center p-4 rounded-xl border border-black/[0.06] bg-white/45 text-center transition hover:-translate-y-0.5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1">{tier.name.split(' ')[0]}</span>
+                  <span className="text-base font-black text-[#c9a86a]">{tier.amount}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex justify-center py-8">
+              <p className="flex items-center gap-2 text-center text-base text-zinc-500">
+                <Sparkles size={20} className="text-[#5E6AD2]" />
+                Information will be available shortly
+                <Sparkles size={20} className="text-[#5E6AD2]" />
+              </p>
+            </div>
+          )}
+
+          {is2024 && (
+            <div className="mt-6 text-center">
+              <Link to="/Sponsors" className="text-sm font-medium text-[#5E6AD2] dark:text-[#c9a86a] hover:underline">
+                View Detailed Sponsorship Benefits →
+              </Link>
+            </div>
+          )}
         </section>
       </main>
     </div>
