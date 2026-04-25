@@ -94,6 +94,7 @@ function Home() {
   const speakers2026 = [
     { name: "Prof. Nishchal K Verma", role: "Keynote Speaker", org: "IIT Kanpur, India", image: "/nishchal.jpg" },
     { name: "A K Karunakar", role: "Invited Speaker", org: "Manipal University Jaipur, India", image: "/karunakar.jpg" },
+    { name: "Maheshkumar H. Kolekar", role: "Invited Speaker", org: "IIT Patna, India", image: "/mahesh.jpg" },
   ];
 
   const displaySpeakers = is2024 ? speakers2024 : speakers2026;
