@@ -5,6 +5,21 @@ import RegistrationTicket from "./RegistrationTicket";
 import { invokeEdge } from "../lib/supabaseFunctions";
 import { clearAdminToken, getAdminToken } from "../lib/adminSession";
 import { startGatewayCheckout } from "./PaymentGateway";
+import { 
+  Users, 
+  Search, 
+  Settings, 
+  LogOut, 
+  TestTube, 
+  QrCode, 
+  Edit3, 
+  Eye, 
+  Trash2,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Database
+} from "lucide-react";
 
 function formatDate(iso) {
   if (!iso) return "—";

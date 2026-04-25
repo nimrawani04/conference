@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Menu, Moon, Search, Sun, User, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/themeContext";
+import { useYear } from "../context/yearContext";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ function Navbar() {
   const [committeeOpen, setCommitteeOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const { selectedYear, setSelectedYear } = useYear();
 
   const committeeItems = [
     { name: "Steering Committee", path: "/committee/SteeringCommitte" },
@@ -70,7 +72,7 @@ function Navbar() {
           </a>
           <span className="hidden min-w-0 border-l border-black/[0.08] pl-3 md:block">
             <span className="block text-sm font-bold text-zinc-950">2AI</span>
-            <span className="terminal-label block text-zinc-500">CONFERENCE 2026</span>
+            <span className="terminal-label block text-zinc-500">CONFERENCE {selectedYear}</span>
           </span>
         </div>
 
@@ -120,13 +122,32 @@ function Navbar() {
               }}
               className="terminal-nav-item flex items-center gap-0.5 border border-black/[0.06] bg-white px-2.5 py-1 text-xs font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-50 hover:text-zinc-950 whitespace-nowrap"
             >
-              Select Year (2026)
+              Select Year ({selectedYear})
               <ChevronDown size={12} className={`transition-transform ${yearOpen ? "rotate-180" : ""}`} />
             </button>
               {yearOpen && (
               <div className="linear-dropdown absolute left-0 mt-1 w-44 overflow-hidden border border-black/[0.06] bg-white shadow-2xl">
                 <ul className="py-0.5">
-                  <li className="px-3 py-1.5 text-xs text-zinc-700 hover:bg-black/[0.04] cursor-pointer">2026</li>
+                  <li
+                    onClick={() => { setSelectedYear(2026); setYearOpen(false); }}
+                    className={`px-3 py-1.5 text-xs cursor-pointer transition ${
+                      selectedYear === 2026
+                        ? "text-[#5E6AD2] dark:text-[#c9a86a] font-bold bg-[#5E6AD2]/5 dark:bg-[#c9a86a]/5"
+                        : "text-zinc-700 hover:bg-black/[0.04]"
+                    }`}
+                  >
+                    2026 {selectedYear === 2026 && "✓"}
+                  </li>
+                  <li
+                    onClick={() => { setSelectedYear(2024); setYearOpen(false); }}
+                    className={`px-3 py-1.5 text-xs cursor-pointer transition ${
+                      selectedYear === 2024
+                        ? "text-[#5E6AD2] dark:text-[#c9a86a] font-bold bg-[#5E6AD2]/5 dark:bg-[#c9a86a]/5"
+                        : "text-zinc-700 hover:bg-black/[0.04]"
+                    }`}
+                  >
+                    2024 {selectedYear === 2024 && "✓"}
+                  </li>
                   <li className="px-3 py-1.5 text-xs text-zinc-400 cursor-not-allowed">2025</li>
                 </ul>
               </div>

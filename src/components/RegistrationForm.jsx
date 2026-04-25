@@ -214,18 +214,18 @@ function RegistrationForm() {
 
   return (
     <>
-      <div className="bg-white rounded shadow-sm p-8 mt-8 border border-gray-100">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2 text-center">
+      <div className="linear-card p-8 mt-8">
+        <h3 className="text-2xl font-bold text-zinc-950 dark:text-zinc-100 mb-2 text-center">
           2AI Conference Registration
         </h3>
-        <p className="text-sm text-gray-600 mb-8 text-center">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-8 text-center">
           (Based on Approved Fee Structure)
         </p>
-        <p className="text-sm text-gray-600 mb-2 text-center">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-2 text-center">
           Exchange rate: 1 USD = ₹ {usdToInrRate.toFixed(2)} {fxLoaded ? "(live)" : "(loading...)"}
         </p>
         {isLateFeeActive() && (
-          <p className="text-sm text-red-600 mb-8 text-center font-semibold">
+          <p className="text-sm text-red-600 dark:text-red-400 mb-8 text-center font-semibold">
             Late fee active: 20% added to registration fee after May 5.
           </p>
         )}
@@ -238,10 +238,10 @@ function RegistrationForm() {
               className={`w-10 h-10 flex items-center justify-center font-bold rounded-full border-2 
                 ${
                   currentStep === step
-                    ? "bg-[#1a56db] text-white border-[#1a56db]"
+                    ? "bg-[#5E6AD2] dark:bg-[#c9a86a] text-white dark:text-zinc-950 border-[#5E6AD2] dark:border-[#c9a86a]"
                     : currentStep > step
                     ? "bg-[#16a34a] text-white border-[#16a34a]"
-                    : "bg-gray-100 text-gray-400 border-gray-200"
+                    : "bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-500 border-gray-200 dark:border-zinc-700"
                 } transition-all duration-300 shadow-sm`}
             >
               {currentStep > step ? "✓" : step}
@@ -249,7 +249,7 @@ function RegistrationForm() {
             {index < 2 && (
               <div
                 className={`w-12 md:w-20 h-1 
-                  ${currentStep > step ? "bg-[#16a34a]" : "bg-gray-200"}
+                  ${currentStep > step ? "bg-[#16a34a]" : "bg-gray-200 dark:bg-zinc-700"}
                   transition-colors duration-300`}
               />
             )}
@@ -263,12 +263,12 @@ function RegistrationForm() {
           <div className="animate-fadeInDown">
             {/* A. Participant Information */}
             <section className="mb-8">
-              <h4 className="text-lg font-bold text-[#1a56db] border-b border-gray-200 pb-2 mb-6">
+              <h4 className="text-lg font-bold text-zinc-950 dark:text-zinc-100 border-b border-gray-200 dark:border-zinc-700 pb-2 mb-6">
                 Step 1: Participant Information
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -276,12 +276,12 @@ function RegistrationForm() {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    className="w-full border border-gray-300 dark:border-zinc-700 rounded p-3 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none transition-shadow"
                     placeholder="Milad Ajaz Bhat"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                     Affiliation / Organization <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -289,24 +289,24 @@ function RegistrationForm() {
                     name="affiliation"
                     value={formData.affiliation}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    className="w-full border border-gray-300 dark:border-zinc-700 rounded p-3 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none transition-shadow"
                     placeholder="University/Company"
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-2">
                     Designation
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {DESIGNATIONS.map((desig) => (
-                      <label key={desig} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-gray-50 hover:bg-blue-50 p-3 rounded border border-gray-200 transition-colors">
+                      <label key={desig} className="flex items-center space-x-2 text-sm text-zinc-800 dark:text-zinc-300 dark:text-zinc-300 cursor-pointer bg-gray-50 dark:bg-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 p-3 rounded border border-gray-200 dark:border-zinc-700 dark:border-white/10 transition-colors">
                         <input
                           type="radio"
                           name="designation"
                           value={desig}
                           checked={formData.designation === desig}
                           onChange={handleChange}
-                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                          className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
                         />
                         <span className="font-medium">{desig}</span>
                       </label>
@@ -314,7 +314,7 @@ function RegistrationForm() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                     Country <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -322,12 +322,12 @@ function RegistrationForm() {
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    className="w-full border border-gray-300 dark:border-zinc-700 rounded p-3 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none transition-shadow"
                     placeholder="Your Country"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                     Email ID <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -335,12 +335,12 @@ function RegistrationForm() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    className="w-full border border-gray-300 dark:border-zinc-700 rounded p-3 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none transition-shadow"
                     placeholder="you@domain.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                     Contact Number (with country code) <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -348,44 +348,23 @@ function RegistrationForm() {
                     name="contactNumber"
                     value={formData.contactNumber}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+                    className="w-full border border-gray-300 dark:border-zinc-700 rounded p-3 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none transition-shadow"
                     placeholder="+1 234 567 890"
                   />
                 </div>
               </div>
             </section>
 
-            {/* B. Registration Category */}
+            {/* B. Attendance Mode */}
             <section className="mb-6">
-              <h4 className="text-lg font-semibold text-gray-800 mb-3">
-                Registration Category
-              </h4>
-              <div className="flex flex-wrap gap-4">
-                {["Author", "Non-Author"].map((type) => (
-                  <label key={type} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 border border-gray-200 rounded shadow-sm hover:border-blue-500 hover:bg-blue-50 transition-colors">
-                    <input
-                      type="radio"
-                      name="participantType"
-                      value={type}
-                      checked={formData.participantType === type}
-                      onChange={handleChange}
-                      className="text-blue-600 focus:ring-blue-500 h-4 w-4"
-                    />
-                    <span className="font-semibold">{type}</span>
-                  </label>
-                ))}
-              </div>
-            </section>
-
-            <section className="mb-6">
-              <h4 className="text-lg font-semibold text-gray-800 mb-3">
+              <h4 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100 mb-3">
                 Attendance Mode
               </h4>
               <div className="flex flex-wrap gap-4">
                 {["Offline", "Online"].map((mode) => (
                   <label
                     key={mode}
-                    className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 border border-gray-200 rounded shadow-sm hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                    className="flex items-center space-x-2 text-sm text-zinc-800 dark:text-zinc-300 dark:text-zinc-300 cursor-pointer bg-white dark:bg-white/5 p-3 border border-gray-200 dark:border-zinc-700 dark:border-white/10 rounded shadow-sm hover:border-[#5E6AD2] dark:hover:border-[#c9a86a] hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors"
                   >
                     <input
                       type="radio"
@@ -393,7 +372,7 @@ function RegistrationForm() {
                       value={mode}
                       checked={formData.attendanceMode === mode}
                       onChange={handleChange}
-                      className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                      className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
                     />
                     <span className="font-semibold">{mode}</span>
                   </label>
@@ -401,15 +380,37 @@ function RegistrationForm() {
               </div>
             </section>
 
-            {/* C. Author Details */}
+            {/* C. Registration Category */}
+            <section className="mb-6">
+              <h4 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100 mb-3">
+                Registration Category
+              </h4>
+              <div className="flex flex-wrap gap-4">
+                {["Author", "Non-Author"].map((type) => (
+                  <label key={type} className="flex items-center space-x-2 text-sm text-zinc-800 dark:text-zinc-300 dark:text-zinc-300 cursor-pointer bg-white dark:bg-white/5 p-3 border border-gray-200 dark:border-zinc-700 dark:border-white/10 rounded shadow-sm hover:border-[#5E6AD2] dark:hover:border-[#c9a86a] hover:bg-zinc-50 dark:hover:bg-white/10 transition-colors">
+                    <input
+                      type="radio"
+                      name="participantType"
+                      value={type}
+                      checked={formData.participantType === type}
+                      onChange={handleChange}
+                      className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
+                    />
+                    <span className="font-semibold">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </section>
+
+            {/* D. Author Details */}
             {formData.participantType === "Author" && (
-              <section className="bg-blue-50 p-5 rounded-lg border border-blue-100 animate-slideDown">
-                <h4 className="text-md font-bold text-[#1a56db] mb-4 flex items-center">
-                  C. Author Details
+              <section className="bg-white dark:bg-white/5 p-5 rounded-lg border border-black/[0.06] dark:border-white/10 animate-slideDown">
+                <h4 className="text-md font-bold text-zinc-950 dark:text-zinc-100 mb-4 flex items-center">
+                  D. Author Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                       Paper ID <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -417,11 +418,11 @@ function RegistrationForm() {
                       name="paperId"
                       value={formData.paperId}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full border border-gray-300 dark:border-zinc-700 rounded p-2 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                       Paper Title <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -429,11 +430,11 @@ function RegistrationForm() {
                       name="paperTitle"
                       value={formData.paperTitle}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full border border-gray-300 dark:border-zinc-700 rounded p-2 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
                       Number of Authors <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -442,7 +443,7 @@ function RegistrationForm() {
                       min="1"
                       value={formData.numAuthors}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full border border-gray-300 dark:border-zinc-700 rounded p-2 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] outline-none"
                     />
                   </div>
                 </div>
@@ -454,47 +455,47 @@ function RegistrationForm() {
         {/* ================= STEP 2: Fee Selection & Workshop ================= */}
         {currentStep === 2 && (
           <div className="animate-fadeInDown">
-            <h4 className="text-lg font-bold text-[#1a56db] border-b border-gray-200 pb-2 mb-6">
+            <h4 className="text-lg font-bold text-zinc-950 dark:text-zinc-100 border-b border-gray-200 dark:border-zinc-700 pb-2 mb-6">
               Step 2: Fee Selection & Add-ons
             </h4>
 
             {/* D. Fee Category Selection */}
             <section className="mb-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white p-5 rounded border border-gray-200 shadow-sm">
-                  <label className="block text-sm font-bold text-gray-800 mb-3 border-b pb-2">
+                <div className="bg-white p-5 rounded border border-gray-200 dark:border-zinc-700 shadow-sm">
+                  <label className="block text-sm font-bold text-zinc-950 dark:text-zinc-100 mb-3 border-b pb-2">
                     Sub-Category
                   </label>
                   <div className="space-y-3">
                     {["UG / PG / PhD Student", "Others"].map((subCat) => (
-                      <label key={subCat} className="flex items-center space-x-3 text-sm text-gray-700 cursor-pointer">
+                      <label key={subCat} className="flex items-center space-x-3 text-sm text-zinc-800 dark:text-zinc-300 cursor-pointer">
                         <input
                           type="radio"
                           name="subCategory"
                           value={subCat}
                           checked={formData.subCategory === subCat}
                           onChange={handleChange}
-                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                          className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
                         />
                         <span className="font-medium">{subCat === "Others" ? "Others (Faculty / Researcher / Industry)" : subCat}</span>
                       </label>
                     ))}
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded border border-gray-200 shadow-sm">
-                  <label className="block text-sm font-bold text-gray-800 mb-3 border-b pb-2">
+                <div className="bg-white p-5 rounded border border-gray-200 dark:border-zinc-700 shadow-sm">
+                  <label className="block text-sm font-bold text-zinc-950 dark:text-zinc-100 mb-3 border-b pb-2">
                     Region
                   </label>
                   <div className="space-y-3">
                     {["South Asian", "Other Countries"].map((reg) => (
-                      <label key={reg} className="flex items-center space-x-3 text-sm text-gray-700 cursor-pointer">
+                      <label key={reg} className="flex items-center space-x-3 text-sm text-zinc-800 dark:text-zinc-300 cursor-pointer">
                         <input
                           type="radio"
                           name="region"
                           value={reg}
                           checked={formData.region === reg}
                           onChange={handleChange}
-                          className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                          className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
                         />
                         <span className="font-medium">{reg}</span>
                       </label>
@@ -505,35 +506,35 @@ function RegistrationForm() {
             </section>
 
             {/* F. Pre-Conference Workshop */}
-            <section className="mb-8 bg-blue-50 p-5 rounded-lg border border-blue-100">
-              <h4 className="text-md font-bold text-blue-900 mb-3">
+            <section className="mb-8 bg-white dark:bg-white/5 p-5 rounded-lg border border-black/[0.06] dark:border-white/10">
+              <h4 className="text-md font-bold text-zinc-950 dark:text-zinc-100 mb-3">
                 Pre-Conference Workshop (Optional)
               </h4>
-              <p className="text-sm text-gray-700 mb-4">
+              <p className="text-sm text-zinc-800 dark:text-zinc-300 mb-4">
                 Do you want to attend the Pre-Conference Workshop on 17th June 2026?
               </p>
               <div className="flex gap-6">
-                <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 rounded border border-gray-200 shadow-sm">
+                <label className="flex items-center space-x-2 text-sm text-zinc-800 dark:text-zinc-300 cursor-pointer bg-white p-3 rounded border border-gray-200 dark:border-zinc-700 shadow-sm">
                   <input
                     type="radio"
                     name="attendWorkshop"
                     value="Yes"
                     checked={formData.attendWorkshop === "Yes"}
                     onChange={handleChange}
-                    className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
                   />
-                  <span className="font-semibold text-blue-700">
+                  <span className="font-semibold text-[#5E6AD2] dark:text-[#c9a86a]">
                     Yes (+ $20 / ₹ {roundToNearestRupee(20 * usdToInrRate)})
                   </span>
                 </label>
-                <label className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer bg-white p-3 rounded border border-gray-200 shadow-sm">
+                <label className="flex items-center space-x-2 text-sm text-zinc-800 dark:text-zinc-300 cursor-pointer bg-white p-3 rounded border border-gray-200 dark:border-zinc-700 shadow-sm">
                   <input
                     type="radio"
                     name="attendWorkshop"
                     value="No"
                     checked={formData.attendWorkshop === "No"}
                     onChange={handleChange}
-                    className="text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    className="text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] h-4 w-4"
                   />
                   <span className="font-semibold">No, Thanks</span>
                 </label>
@@ -542,12 +543,12 @@ function RegistrationForm() {
 
             {/* E. Auto-Calculated Fee */}
             <section className="bg-orange-50 border-2 border-orange-300 p-6 rounded-lg text-center shadow-sm">
-              <h4 className="text-sm font-bold text-gray-600 uppercase tracking-widest mb-2 flex items-center justify-center space-x-2">
+              <h4 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-widest mb-2 flex items-center justify-center space-x-2">
                 <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Total Payable Amount</span>
               </h4>
-              <div className="text-4xl font-extrabold text-[#1a56db] animate-zoomFadeIn">
-                ₹ {fee.inr} <span className="text-2xl text-gray-500 font-bold ml-2">($ {fee.usd})</span>
+              <div className="text-4xl font-extrabold text-[#5E6AD2] dark:text-[#c9a86a] animate-zoomFadeIn">
+                ₹ {fee.inr} <span className="text-2xl text-zinc-600 dark:text-zinc-400 font-bold ml-2">($ {fee.usd})</span>
               </div>
             </section>
           </div>
@@ -556,38 +557,38 @@ function RegistrationForm() {
         {/* ================= STEP 3: Payment & Declaration ================= */}
         {currentStep === 3 && (
           <div className="animate-fadeInDown">
-            <h4 className="text-lg font-bold text-[#1a56db] border-b border-gray-200 pb-2 mb-6">
+            <h4 className="text-lg font-bold text-zinc-950 dark:text-zinc-100 border-b border-gray-200 dark:border-zinc-700 pb-2 mb-6">
               Step 3: Payment & Declaration
             </h4>
 
-            <div className="bg-[#1a56db] text-white rounded p-4 mb-6 text-center shadow">
+            <div className="bg-[#5E6AD2] dark:bg-[#c9a86a] text-white dark:text-zinc-950 rounded p-4 mb-6 text-center shadow">
               <p className="text-sm opacity-90 mb-1">Amount due</p>
               <p className="text-2xl font-bold">
                 ₹ {fee.inr} ($ {fee.usd})
               </p>
             </div>
 
-            <section className="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <p className="text-sm font-semibold text-gray-800 mb-2">Secure online payment</p>
-              <p className="text-sm text-gray-600 leading-relaxed mb-4">
+            <section className="mb-8 bg-zinc-50 dark:bg-zinc-900/50 p-6 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <p className="text-sm font-semibold text-zinc-950 dark:text-zinc-100 mb-2">Secure online payment</p>
+              <p className="text-sm text-zinc-700 dark:text-zinc-400 leading-relaxed mb-4">
                 Use the button below to open the payment portal, complete your transaction, and return here to finish
                 registration automatically. You will leave this site briefly and be redirected back after payment.
               </p>
-              <ul className="text-sm text-gray-600 list-disc pl-5 space-y-1">
+              <ul className="text-sm text-zinc-700 dark:text-zinc-400 list-disc pl-5 space-y-1">
                 <li>Card, UPI, and other options available on the gateway</li>
                 <li>Do not close the browser until you return to the confirmation page</li>
               </ul>
             </section>
 
-            <section className="bg-white p-5 rounded border border-gray-200">
-              <label className="flex items-start space-x-3 text-sm text-gray-700 cursor-pointer">
+            <section className="bg-white dark:bg-white/5 p-5 rounded border border-gray-200 dark:border-zinc-700 dark:border-white/10">
+              <label className="flex items-start space-x-3 text-sm text-zinc-800 dark:text-zinc-300 cursor-pointer">
                 <input
                   type="checkbox"
                   name="declaration"
                   required
                   checked={formData.declaration}
                   onChange={handleChange}
-                  className="mt-1 h-5 w-5 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="mt-1 h-5 w-5 shrink-0 text-[#5E6AD2] dark:text-[#c9a86a] focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] border-gray-300 dark:border-zinc-700 rounded"
                 />
                 <span className="font-semibold leading-relaxed">
                   {declarationCheckboxText.split("conference rules and policies").map((part, i, arr) =>
@@ -598,7 +599,7 @@ function RegistrationForm() {
                           to="/rules-and-policies"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#1a56db] underline underline-offset-2 hover:text-blue-800"
+                          className="text-[#5E6AD2] dark:text-[#c9a86a] underline underline-offset-2 hover:opacity-80"
                           onClick={(e) => e.stopPropagation()}
                         >
                           conference rules and policies
@@ -615,12 +616,12 @@ function RegistrationForm() {
         )}
 
         {/* ================= NAVIGATION BUTTONS ================= */}
-        <div className="flex justify-between items-center pt-6 border-t border-gray-200">
+        <div className="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-zinc-700">
           {currentStep > 1 ? (
             <button
               type="button"
               onClick={prevStep}
-              className="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition"
+              className="bg-white dark:bg-white/5 border border-gray-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold py-2 px-6 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-zinc-700 transition"
             >
               ← Back
             </button>
@@ -632,7 +633,7 @@ function RegistrationForm() {
             <button
               type="button"
               onClick={nextStep}
-              className="bg-[#1a56db] hover:bg-blue-800 text-white font-bold py-2 px-8 rounded-lg shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="bg-[#5E6AD2] dark:bg-[#c9a86a] hover:bg-[#4a52b5] dark:hover:bg-[#b8935a] text-white dark:text-zinc-950 font-bold py-2 px-8 rounded-lg shadow-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a]"
             >
               Next Step →
             </button>

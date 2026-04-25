@@ -42,26 +42,26 @@ export default function AdminLogin() {
       <div className="max-w-md mx-auto">
         <form
           onSubmit={handleSubmit}
-          className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 space-y-5"
+          className="linear-card p-8 space-y-5"
         >
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+            <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-1">Username</label>
             <input
               type="text"
               autoComplete="username"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
+              className="w-full border border-gray-300 dark:border-zinc-700 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-1">Password</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
-                className="w-full border border-gray-300 rounded-lg pl-3 pr-11 py-2.5 focus:ring-2 focus:ring-[#2c5aa0] focus:border-[#2c5aa0] outline-none"
+                className="w-full border border-gray-300 dark:border-zinc-700 rounded-lg pl-3 pr-11 py-2.5 focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a] focus:border-[#5E6AD2] dark:focus:border-[#c9a86a] outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -70,7 +70,7 @@ export default function AdminLogin() {
                 type="button"
                 tabIndex={-1}
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#2c5aa0]/40"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-[#5E6AD2] dark:focus:ring-[#c9a86a]"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
@@ -88,7 +88,7 @@ export default function AdminLogin() {
           </div>
 
           {msg && (
-            <p className="text-sm text-red-600 text-center bg-red-50 border border-red-100 rounded-lg py-2 px-3">
+            <p className="text-sm text-red-600 dark:text-red-400 text-center bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 rounded-lg py-2 px-3">
               {msg}
             </p>
           )}
@@ -96,13 +96,13 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={busy}
-            className="w-full bg-[#2c5aa0] hover:bg-[#234a85] disabled:opacity-60 text-white font-semibold py-3 rounded-lg transition"
+            className="w-full bg-[#5E6AD2] dark:bg-[#c9a86a] hover:bg-[#4a52b5] dark:hover:bg-[#b8935a] disabled:opacity-60 text-white dark:text-zinc-950 font-semibold py-3 rounded-lg transition"
           >
             {busy ? "Signing in…" : "Sign in"}
           </button>
 
-          <p className="text-center text-sm text-gray-500">
-            <Link to="/" className="text-[#2c5aa0] hover:underline">
+          <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+            <Link to="/" className="text-[#5E6AD2] dark:text-[#c9a86a] hover:underline">
               ← Back to site
             </Link>
           </p>

@@ -2,9 +2,15 @@
 // https://m4milaad.github.io/ 
 
 import PageLayout from "./PageLayout";
+import { useYear } from "../context/yearContext";
+import conferenceData from "../content/conferenceData";
 
 function KeyNotes() {
-  const keynoteSpeakers = [
+  const { selectedYear } = useYear();
+  const is2024 = selectedYear === 2024;
+  const data = conferenceData[selectedYear];
+
+  const keynoteSpeakers2026 = [
     {
       name: "Prof. Nishchal K Verma",
       role: "Professor, Dept of Electrical Engineering",
@@ -14,7 +20,7 @@ function KeyNotes() {
     },
   ];
 
-  const invitedSpeakers = [
+  const invitedSpeakers2026 = [
     {
       name: "A K Karunakar",
       role: "Pro President",
@@ -41,10 +47,13 @@ function KeyNotes() {
     },
   ];
 
+  const keynoteSpeakers = is2024 ? data.keynoteSpeakers : keynoteSpeakers2026;
+  const invitedSpeakers = is2024 ? (data.invitedSpeakers || []) : invitedSpeakers2026;
+
   return (
     <PageLayout 
       title="Distinguished Speakers"
-      subtitle="Keynote and invited speakers for the 2026 International Conference on Applied Artificial Intelligence"
+      subtitle={`Keynote and invited speakers for the ${selectedYear} International Conference on Applied Artificial Intelligence`}
     >
       {/* Keynote Speakers */}
       <div className="mb-8">
@@ -76,43 +85,45 @@ function KeyNotes() {
       </div>
 
       {/* Invited Speakers */}
-      <div>
-        <h3 className="text-2xl font-bold text-zinc-900 dark:text-gray-100 mb-6 border-l-4 border-[#5E6AD2] dark:border-[#c9a86a] pl-4">
-          Invited Speakers
-        </h3>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {invitedSpeakers.map((speaker, idx) => (
-            <div key={idx} className="speaker-card-light rounded shadow-sm p-6 text-center hover:shadow-md transition border border-black/[0.1] dark:border-white/10">
-              <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-[#5E6AD2] dark:border-green-600 mb-4">
-                <img 
-                  src={speaker.image} 
-                  alt={speaker.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => e.target.src = "https://via.placeholder.com/150?text=Speaker"}
-                />
-              </div>
-              <h4 className="text-lg font-bold text-zinc-900 dark:text-gray-100 mb-1">{speaker.name}</h4>
-              <p className="text-sm text-[#5E6AD2] dark:text-green-400 font-medium mb-2">{speaker.role}</p>
-              <p className="text-xs text-zinc-700 dark:text-gray-400">{speaker.org}</p>
-              {speaker.talkTitle && (
-                <div className="mt-3 text-left rounded-lg border border-[#5E6AD2]/20 bg-[#5E6AD2]/5 px-3 py-2 shadow-sm dark:border-emerald-700/30 dark:from-emerald-950/40 dark:via-green-950/40 dark:to-lime-950/40">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5E6AD2] dark:text-emerald-400">
-                    Talk Spotlight
-                  </p>
-                  <p className="mt-1 text-xs font-semibold text-zinc-900 leading-relaxed dark:text-gray-200">
-                    {speaker.talkTitle}
-                  </p>
+      {invitedSpeakers.length > 0 && (
+        <div>
+          <h3 className="text-2xl font-bold text-zinc-900 dark:text-gray-100 mb-6 border-l-4 border-[#5E6AD2] dark:border-[#c9a86a] pl-4">
+            Invited Speakers
+          </h3>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {invitedSpeakers.map((speaker, idx) => (
+              <div key={idx} className="speaker-card-light rounded shadow-sm p-6 text-center hover:shadow-md transition border border-black/[0.1] dark:border-white/10">
+                <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-[#5E6AD2] dark:border-green-600 mb-4">
+                  <img 
+                    src={speaker.image} 
+                    alt={speaker.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => e.target.src = "https://via.placeholder.com/150?text=Speaker"}
+                  />
                 </div>
-              )}
-              {speaker.bio && (
-                <p className="mt-3 text-xs text-zinc-700 dark:text-gray-300 leading-relaxed text-left">
-                  {speaker.bio}
-                </p>
-              )}
-            </div>
-          ))}
+                <h4 className="text-lg font-bold text-zinc-900 dark:text-gray-100 mb-1">{speaker.name}</h4>
+                <p className="text-sm text-[#5E6AD2] dark:text-green-400 font-medium mb-2">{speaker.role}</p>
+                <p className="text-xs text-zinc-700 dark:text-gray-400">{speaker.org}</p>
+                {speaker.talkTitle && (
+                  <div className="mt-3 text-left rounded-lg border border-[#5E6AD2]/20 bg-[#5E6AD2]/5 px-3 py-2 shadow-sm dark:border-emerald-700/30 dark:from-emerald-950/40 dark:via-green-950/40 dark:to-lime-950/40">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5E6AD2] dark:text-emerald-400">
+                      Talk Spotlight
+                    </p>
+                    <p className="mt-1 text-xs font-semibold text-zinc-900 leading-relaxed dark:text-gray-200">
+                      {speaker.talkTitle}
+                    </p>
+                  </div>
+                )}
+                {speaker.bio && (
+                  <p className="mt-3 text-xs text-zinc-700 dark:text-gray-300 leading-relaxed text-left">
+                    {speaker.bio}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </PageLayout>
   );
 }

@@ -3,8 +3,10 @@
 
 import { FaInstagram, FaLinkedin, FaFacebook } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useYear } from "../context/yearContext";
 
 function Footer() {
+  const { selectedYear } = useYear();
   return (
     <footer className="bg-white border-t border-gray-300 mt-12">
       {/* Main Footer Content */}
@@ -83,7 +85,7 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-gray-600">
             <p>
-              © {new Date().getFullYear()} 2026 International Conference on Applied Artificial Intelligence (2AI). All Rights Reserved.
+              © {new Date().getFullYear()} {selectedYear} International Conference on Applied Artificial Intelligence (2AI). All Rights Reserved.
             </p>
             <div className="flex items-center gap-3">
               <img src="/CUKLogo.png" alt="CUK Logo" className="h-8 w-auto object-contain" />

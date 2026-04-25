@@ -4,9 +4,11 @@
 import { useEffect, useState } from "react";
 import PageLayout from "./PageLayout";
 import { fetchCommitteeByType } from "../lib/committeeData";
+import { useYear } from "../context/yearContext";
 
 function OrganizingCommittee() {
   const [committee, setCommittee] = useState({});
+  const { selectedYear } = useYear();
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +34,7 @@ function OrganizingCommittee() {
   return (
     <PageLayout 
       title="Organizing Committee"
-      subtitle="The team managing logistics and operations for the 2026 International Conference on Applied Artificial Intelligence"
+      subtitle={`The team managing logistics and operations for the ${selectedYear} International Conference on Applied Artificial Intelligence`}
     >
       <div className="space-y-8">
         {Object.entries(committee).map(([section, members], idx) => (
