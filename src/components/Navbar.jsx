@@ -194,6 +194,7 @@ function Navbar() {
             <img src="/CUKLogo.png" alt="CUK Logo" className="h-10 w-auto shrink-0 object-contain sm:h-11" />
           </Link>
           <img src="/logo.png" alt="Conference Logo" className="h-10 w-auto shrink-0 object-contain sm:h-11" />
+          <img src="/ccis.png" alt="CCIS Logo" className="hidden h-7 w-auto shrink-0 object-contain md:block" />
           <a
             href="https://www.springer.com"
             target="_blank"

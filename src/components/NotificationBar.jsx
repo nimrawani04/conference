@@ -1,7 +1,7 @@
 // Edited by Milad Ajaz 
 // https://m4milaad.github.io/ 
 
-import { FileDown, MapPin, BookOpen } from "lucide-react";
+import { FileDown, MapPin, BookOpen, CalendarDays, BadgeCheck } from "lucide-react";
 
 const NotificationBar = () => {
   const items = [
@@ -21,6 +21,16 @@ const NotificationBar = () => {
       icon: BookOpen,
       text: "Selected and presented papers will be considered for Springer CCIS proceedings (Scopus indexed).",
       tone: "text-[#7B4FFF]",
+    },
+    {
+      icon: CalendarDays,
+      text: "Pre-conference workshop: 17 June 2026 | Main conference: 18-19 June 2026.",
+      tone: "text-[#0F766E]",
+    },
+    {
+      icon: BadgeCheck,
+      text: "Accepted papers must be presented by at least one registered author.",
+      tone: "text-[#2563EB]",
     },
   ];
 

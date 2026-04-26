@@ -171,7 +171,7 @@ function Registration() {
                   section.rows.map((row, rIdx) => (
                     <tr key={`${sIdx}-${rIdx}`} className="border-t border-black/[0.06] dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                       {rIdx === 0 && (
-                        <td rowSpan={section.rows.length} className="bg-zinc-100 p-4 align-middle font-bold dark:bg-zinc-800 border-r border-black/[0.06] dark:border-white/10">
+                        <td rowSpan={section.rows.length} className="registration-category-cell p-4 align-middle font-bold border-r border-black/[0.06] dark:border-white/10">
                           {section.category}
                         </td>
                       )}
@@ -205,7 +205,7 @@ function Registration() {
                   section.rows.map((row, rowIdx) => (
                     <tr key={`${sectionIdx}-${rowIdx}`} className="border-t border-black/[0.06] dark:border-white/10 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                       {rowIdx === 0 && (
-                        <td rowSpan={section.rows.length} className="bg-zinc-100 p-4 align-middle font-bold dark:bg-zinc-800 border-r border-black/[0.06] dark:border-white/10">
+                        <td rowSpan={section.rows.length} className="registration-category-cell p-4 align-middle font-bold border-r border-black/[0.06] dark:border-white/10">
                           {section.category}
                         </td>
                       )}

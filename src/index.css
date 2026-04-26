@@ -349,6 +349,10 @@ select:focus-visible {
   background: rgb(0 0 0 / 0.03);
 }
 
+.registration-category-cell {
+  background-color: #f4f4f5;
+}
+
 .notification-marquee {
   animation: marquee 38s linear infinite;
 }
@@ -571,6 +575,10 @@ select:focus-visible {
 :root[data-theme="dark"] td,
 :root[data-theme="dark"] th {
   border-color: var(--border-soft) !important;
+}
+
+:root[data-theme="dark"] .registration-category-cell {
+  background-color: #27272a;
 }
 
 :root[data-theme="dark"] .shadow,
