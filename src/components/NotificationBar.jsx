@@ -1,7 +1,7 @@
 // Edited by Milad Ajaz 
 // https://m4milaad.github.io/ 
 
-import { FileDown, MapPin, BookOpen, CalendarDays, BadgeCheck } from "lucide-react";
+import { FileDown, MapPin, BookOpen, CalendarDays, BadgeCheck, Users, Globe, Mic } from "lucide-react";
 
 const NotificationBar = () => {
   const items = [
@@ -31,6 +31,21 @@ const NotificationBar = () => {
       icon: BadgeCheck,
       text: "Accepted papers must be presented by at least one registered author.",
       tone: "text-[#2563EB]",
+    },
+    {
+      icon: Users,
+      text: "Networking sessions with researchers, students, and industry delegates.",
+      tone: "text-[#7C3AED]",
+    },
+    {
+      icon: Globe,
+      text: "Hybrid participation supported for both in-person and remote attendees.",
+      tone: "text-[#0369A1]",
+    },
+    {
+      icon: Mic,
+      text: "Keynote and invited speaker tracks run across both conference days.",
+      tone: "text-[#BE123C]",
     },
   ];
 
