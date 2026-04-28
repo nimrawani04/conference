@@ -45,7 +45,8 @@ function App() {
         <Route path="/committee/SteeringCommitte" element={<SteeringCommitte />} />
         <Route path="/committee/OrganizingCommitte" element={<OrganizingCommitte />} />
         <Route path="/committee/TechnicalCommitte" element={<TechnicalCommittee />} />
-        <Route path="/sessions/workshops" element={<Workshops />} />
+        <Route path="/sessions/workshop" element={<Workshops />} />
+        <Route path="/sessions/workshops" element={<Navigate to="/sessions/workshop" replace />} />
         <Route path="/sessions/specialSessions" element={<SpecialSessions />} />
         <Route path="/KeyNotes" element={<KeyNotes />} />
         <Route path="/verify-ticket" element={<VerifyTicket />} />

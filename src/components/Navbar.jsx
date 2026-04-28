@@ -54,7 +54,7 @@ function Navbar() {
       const title = w.title || w.event || "";
       const speaker = w.speaker || w.resourcePerson || "";
       if (title.toLowerCase().includes(q) || speaker.toLowerCase().includes(q)) {
-        results.push({ type: "Session", title: title, subtitle: speaker, link: "/sessions/workshops" });
+        results.push({ type: "Session", title: title, subtitle: speaker, link: "/sessions/workshop" });
       }
     });
 
@@ -153,7 +153,7 @@ function Navbar() {
 
   const sessionsItems = [
     { name: "Special Sessions", path: "/sessions/specialSessions" },
-    { name: "Workshops", path: "/sessions/workshops" },
+    { name: "Workshop", path: "/sessions/workshop" },
   ];
 
   const navLinkClass =

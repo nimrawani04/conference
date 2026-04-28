@@ -64,38 +64,60 @@ const fontImport = `
     html, body {
       margin: 0 !important;
       padding: 0 !important;
-      height: auto !important;
-      min-height: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 100% !important;
+      overflow: hidden !important;
+      background: #fff !important;
     }
     @page {
-      size: landscape;
-      margin: 10mm;
+      size: A4 landscape;
+      margin: 0;
     }
-    body > *:not(.registration-ticket-backdrop) { visibility: hidden; }
+    body * { visibility: hidden !important; }
+    .registration-ticket-backdrop,
+    .registration-ticket-backdrop * { visibility: visible !important; }
     .no-print { display: none !important; }
-    .print-root, .print-root * { visibility: visible; }
     .registration-ticket-backdrop {
-      position: static !important;
-      inset: auto !important;
-      display: block !important;
-      height: auto !important;
-      min-height: 0 !important;
+      position: fixed !important;
+      inset: 0 !important;
+      display: flex !important;
+      align-items: stretch !important;
+      justify-content: center !important;
+      width: 100vw !important;
+      height: 100vh !important;
       padding: 0 !important;
-      background: transparent !important;
-      z-index: auto !important;
+      margin: 0 !important;
+      background: #fff !important;
+      z-index: 2147483647 !important;
+      overflow: hidden !important;
     }
     .registration-ticket-frame {
       box-shadow: none !important;
-      max-width: none !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      transform: none !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
     }
     .print-root {
       position: relative !important;
-      left: auto !important;
-      top: auto !important;
       width: 100% !important;
-      height: auto !important;
-      page-break-inside: avoid;
-      break-inside: avoid;
+      height: 100% !important;
+      min-height: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      padding: 8mm !important;
+      margin: 0 !important;
+      transform: none !important;
+      rotate: 0deg !important;
+      page-break-before: avoid !important;
+      page-break-after: avoid !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
@@ -307,11 +329,11 @@ export default function RegistrationTicket({ registrationData, onClose }) {
                   letterSpacing: "0.01em",
                   whiteSpace: "pre-line",
                 }}>
-                  {`2nd
+                  {`2026
 International
 Conference on
-Advances
-in AI`}
+Applied Artificial
+Intelligence (2AI)`}
                 </div>
 
                 {/* detail pills */}
@@ -615,12 +637,12 @@ in AI`}
               position: "relative",
               lineHeight: 1.4,
             }}>
-              Official registration confirmation · 2nd International Conference on Advances in AI (2AI-2026) ·{" "}
+              Official registration confirmation · 2026 INTERNATIONAL CONFERENCE ON APPLIED ARTIFICIAL INTELLIGENCE ·{" "}
               <a href="mailto:aaiconferences@gmail.com" style={{ color: "#777" }}>aaiconferences@gmail.com</a>
             </p>
           </div>
 
-          {/* ── Bottom bar ── */}
+          {/* ── Bottom bar ── */}  
           <div className="no-print" style={{
             background: "#111", 
             padding: window.innerWidth < 480 ? "10px 12px" : "10px 20px",

@@ -143,7 +143,7 @@ function Home() {
                   <Link to="/registration" className="linear-primary inline-flex justify-center px-5 py-3">
                     Register
                   </Link>
-                  <Link to="/sessions/workshops" className="linear-secondary inline-flex justify-center px-5 py-3">
+                  <Link to="/sessions/workshop" className="linear-secondary inline-flex justify-center px-5 py-3">
                     Workshop
                   </Link>
                 </div>

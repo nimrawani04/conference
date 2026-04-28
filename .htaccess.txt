@@ -23,6 +23,21 @@ THE CODE :
   RewriteRule ^ index.html [L]
 </IfModule>
 
+<IfModule mod_headers.c>
+  # Always revalidate HTML so each visit checks hosting for the latest app shell
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+
+  # Keep hashed build assets cacheable for performance
+  # (new deploys generate new filenames, so users still get latest version)
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
 
 THIS FILE IS NECCESSARY WHEN THE CODE IS UPDATED AND WANT TO DEPLOY AGAIN IN HOSTINGER.
 WITHOUT THIS FILE THE ABOUT,CONATACT OR ANY PAGES DOESN'T OPEN DIRECTLY i.e-(https://2ai-conference.org/about)
